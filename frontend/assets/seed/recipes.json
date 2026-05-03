@@ -1,0 +1,715 @@
+[
+  {
+    "id": "r1",
+    "title": "Cacio e Pepe",
+    "cuisine": "Italian",
+    "image": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=900&auto=format&fit=crop",
+    "description": "A Roman classic of bucatini, sharp Pecorino Romano, and a snowstorm of cracked black pepper. Three ingredients, one perfect plate.",
+    "prepTime": 10,
+    "cookTime": 15,
+    "servings": 2,
+    "tags": ["weeknight", "30 min"],
+    "dietary": ["vegetarian"],
+    "author": "Marcella Hazan",
+    "customTags": [{"key": "cookware", "value": "skillet"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "200", "unit": "g", "name": "bucatini or spaghetti"},
+      {"amount": "80", "unit": "g", "name": "Pecorino Romano, finely grated"},
+      {"amount": "2", "unit": "tsp", "name": "black peppercorns, freshly cracked"},
+      {"amount": "1", "unit": "tbsp", "name": "olive oil"},
+      {"amount": "1", "unit": "tsp", "name": "kosher salt"}
+    ],
+    "instructions": [
+      "Bring a pot of well-salted water to a boil. Cook pasta to one minute shy of al dente.",
+      "Toast cracked pepper in a dry skillet over medium heat for 30 seconds until fragrant.",
+      "Add a ladle of pasta water and the olive oil to the skillet; reduce slightly.",
+      "Transfer pasta to the skillet, add Pecorino off heat, and toss vigorously until creamy.",
+      "Plate immediately with extra cheese and pepper on top."
+    ]
+  },
+  {
+    "id": "r2",
+    "title": "Chicken Tinga Tacos",
+    "cuisine": "Mexican",
+    "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=900&auto=format&fit=crop",
+    "description": "Smoky shredded chicken in a chipotle-tomato sauce, piled on warm corn tortillas with crema and pickled onions.",
+    "prepTime": 15,
+    "cookTime": 30,
+    "servings": 4,
+    "tags": ["family", "meal prep"],
+    "dietary": ["gluten-free", "dairy-free"],
+    "author": "Diana Kennedy",
+    "customTags": [{"key": "mealType", "value": "dinner"}, {"key": "occasion", "value": "taco-night"}],
+    "ingredients": [
+      {"amount": "1", "unit": "lb", "name": "chicken thighs, boneless"},
+      {"amount": "3", "unit": "whole", "name": "chipotles in adobo"},
+      {"amount": "2", "unit": "cups", "name": "crushed tomatoes"},
+      {"amount": "1", "unit": "medium", "name": "yellow onion, sliced"},
+      {"amount": "4", "unit": "cloves", "name": "garlic"},
+      {"amount": "12", "unit": "small", "name": "corn tortillas"},
+      {"amount": "1", "unit": "cup", "name": "cotija or queso fresco"}
+    ],
+    "instructions": [
+      "Poach chicken thighs in salted water with bay leaf for 20 minutes. Reserve broth.",
+      "Blend chipotles, tomatoes, garlic, and 1 cup poaching liquid until smooth.",
+      "Sweat the onion in oil until translucent, then add the sauce and simmer 10 minutes.",
+      "Shred chicken and fold into the sauce; cook 5 more minutes to thicken.",
+      "Warm tortillas, fill, and top with crema, cotija, and pickled onions."
+    ]
+  },
+  {
+    "id": "r3",
+    "title": "Palak Paneer",
+    "cuisine": "Indian",
+    "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=900&auto=format&fit=crop",
+    "description": "Cubes of fresh paneer simmered in a velvety spiced spinach gravy. Comfort food with weekday-friendly timing.",
+    "prepTime": 15,
+    "cookTime": 25,
+    "servings": 4,
+    "tags": ["vegetarian", "one-pan"],
+    "dietary": ["vegetarian", "gluten-free"],
+    "author": "Madhur Jaffrey",
+    "customTags": [{"key": "cookware", "value": "kadhai"}, {"key": "season", "value": "winter"}],
+    "ingredients": [
+      {"amount": "400", "unit": "g", "name": "paneer, cubed"},
+      {"amount": "500", "unit": "g", "name": "baby spinach"},
+      {"amount": "2", "unit": "tbsp", "name": "ghee or neutral oil"},
+      {"amount": "1", "unit": "large", "name": "onion, finely chopped"},
+      {"amount": "1", "unit": "tbsp", "name": "ginger-garlic paste"},
+      {"amount": "2", "unit": "tsp", "name": "garam masala"},
+      {"amount": "1/2", "unit": "cup", "name": "heavy cream"}
+    ],
+    "instructions": [
+      "Blanch spinach in boiling water for 90 seconds; shock in ice water and blend smooth.",
+      "Sear paneer cubes in ghee until golden on all sides; remove and set aside.",
+      "In the same pan, soften onions, then add ginger-garlic paste and cook 2 minutes.",
+      "Add spinach purée, garam masala, salt; simmer 8 minutes.",
+      "Stir in cream and paneer; warm through. Serve with basmati or naan."
+    ]
+  },
+  {
+    "id": "r4",
+    "title": "Salmon Onigirazu",
+    "cuisine": "Japanese",
+    "image": "https://images.unsplash.com/photo-1607301405390-d831c242f59b?w=900&auto=format&fit=crop",
+    "description": "A rice-and-nori sandwich layered with miso-glazed salmon, cucumber, and shiso. Lunchbox perfection.",
+    "prepTime": 20,
+    "cookTime": 15,
+    "servings": 2,
+    "tags": ["lunchbox", "15 min"],
+    "dietary": ["dairy-free"],
+    "author": "Me",
+    "customTags": [{"key": "mealType", "value": "lunchbox"}, {"key": "difficulty", "value": "medium"}],
+    "ingredients": [
+      {"amount": "2", "unit": "fillets", "name": "salmon, skin off"},
+      {"amount": "2", "unit": "tbsp", "name": "white miso"},
+      {"amount": "1", "unit": "tbsp", "name": "mirin"},
+      {"amount": "2", "unit": "cups", "name": "cooked sushi rice"},
+      {"amount": "2", "unit": "sheets", "name": "nori, toasted"},
+      {"amount": "1/2", "unit": "whole", "name": "cucumber, sliced"},
+      {"amount": "4", "unit": "leaves", "name": "shiso (optional)"}
+    ],
+    "instructions": [
+      "Whisk miso, mirin, and a splash of soy. Brush over salmon and broil 8 minutes.",
+      "Place a nori sheet shiny-side down on plastic wrap.",
+      "Layer rice, cucumber, salmon, shiso, and another rice layer in the center.",
+      "Fold corners of nori into the middle; wrap tightly in plastic and rest 2 minutes.",
+      "Slice in half with a wet knife. Serve with extra soy."
+    ]
+  },
+  {
+    "id": "r5",
+    "title": "Greek Lemon Chicken",
+    "cuisine": "Mediterranean",
+    "image": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=900&auto=format&fit=crop",
+    "description": "Sheet-pan chicken thighs roasted with potatoes, oregano, and a punchy lemon dressing. Sunday dinner energy.",
+    "prepTime": 15,
+    "cookTime": 55,
+    "servings": 4,
+    "tags": ["sheet-pan", "sunday"],
+    "dietary": ["gluten-free", "dairy-free"],
+    "author": "Diane Kochilas",
+    "customTags": [{"key": "cookware", "value": "sheet-pan"}, {"key": "occasion", "value": "sunday"}],
+    "ingredients": [
+      {"amount": "8", "unit": "whole", "name": "chicken thighs, bone-in"},
+      {"amount": "4", "unit": "medium", "name": "Yukon gold potatoes, wedged"},
+      {"amount": "3", "unit": "whole", "name": "lemons, 2 juiced + 1 sliced"},
+      {"amount": "6", "unit": "cloves", "name": "garlic, smashed"},
+      {"amount": "2", "unit": "tbsp", "name": "dried oregano"},
+      {"amount": "1/4", "unit": "cup", "name": "olive oil"}
+    ],
+    "instructions": [
+      "Preheat oven to 425°F. Toss potatoes with half the oil, salt, oregano.",
+      "Whisk lemon juice, remaining oil, garlic, oregano. Marinate chicken 10 minutes.",
+      "Arrange potatoes and chicken on a sheet pan; tuck lemon slices around.",
+      "Roast 45–50 minutes, basting once, until skin is deep gold and potatoes are crisp.",
+      "Rest 5 minutes; finish with chopped parsley and an extra squeeze of lemon."
+    ]
+  },
+  {
+    "id": "r6",
+    "title": "Pad See Ew",
+    "cuisine": "Thai",
+    "image": "https://images.unsplash.com/photo-1559314809-0d155014e29e?w=900&auto=format&fit=crop",
+    "description": "Wide rice noodles wok-tossed with Chinese broccoli, egg, and a sweet-savory dark soy glaze.",
+    "prepTime": 15,
+    "cookTime": 10,
+    "servings": 2,
+    "tags": ["weeknight", "wok"],
+    "dietary": ["dairy-free"],
+    "author": "David Thompson",
+    "customTags": [{"key": "cookware", "value": "wok"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "400", "unit": "g", "name": "fresh wide rice noodles"},
+      {"amount": "1", "unit": "bunch", "name": "Chinese broccoli (gai lan)"},
+      {"amount": "200", "unit": "g", "name": "chicken or tofu, sliced"},
+      {"amount": "2", "unit": "whole", "name": "eggs"},
+      {"amount": "2", "unit": "tbsp", "name": "dark sweet soy sauce"},
+      {"amount": "1", "unit": "tbsp", "name": "fish sauce"},
+      {"amount": "3", "unit": "cloves", "name": "garlic, smashed"}
+    ],
+    "instructions": [
+      "Heat a wok smoking-hot. Sear protein until just cooked; push to side.",
+      "Crack eggs into the bare wok; let set briefly before scrambling.",
+      "Add garlic and gai lan stems; stir-fry 1 minute.",
+      "Add noodles and sauces. Toss with minimal stirring to get char marks.",
+      "Fold in leaves until wilted. Plate immediately with chili vinegar."
+    ]
+  },
+  {
+    "id": "r7",
+    "title": "Coq au Vin Blanc",
+    "cuisine": "French",
+    "image": "https://images.unsplash.com/photo-1574484284002-952d92456975?w=900&auto=format&fit=crop",
+    "description": "A lighter take on the bistro classic — chicken braised in white wine with leeks, mushrooms, and tarragon.",
+    "prepTime": 20,
+    "cookTime": 75,
+    "servings": 4,
+    "tags": ["braise", "weekend"],
+    "dietary": [],
+    "author": "Julia Child",
+    "customTags": [{"key": "cookware", "value": "dutch-oven"}, {"key": "occasion", "value": "dinner-party"}, {"key": "season", "value": "fall"}],
+    "ingredients": [
+      {"amount": "1", "unit": "whole", "name": "chicken, broken down"},
+      {"amount": "200", "unit": "g", "name": "lardons or thick bacon"},
+      {"amount": "2", "unit": "large", "name": "leeks, sliced"},
+      {"amount": "250", "unit": "g", "name": "cremini mushrooms"},
+      {"amount": "2", "unit": "cups", "name": "dry white wine"},
+      {"amount": "2", "unit": "cups", "name": "chicken stock"},
+      {"amount": "1", "unit": "tbsp", "name": "fresh tarragon, chopped"}
+    ],
+    "instructions": [
+      "Render lardons in a Dutch oven; remove and reserve.",
+      "Brown chicken pieces in the fat, working in batches. Set aside.",
+      "Sweat leeks until soft; add mushrooms and brown.",
+      "Deglaze with wine, return chicken and lardons, add stock to nearly cover.",
+      "Cover and braise at 325°F for 60 minutes. Finish with tarragon and a knob of butter."
+    ]
+  },
+  {
+    "id": "r8",
+    "title": "Shakshuka",
+    "cuisine": "Middle Eastern",
+    "image": "https://images.unsplash.com/photo-1590412200988-a436970781fa?w=900&auto=format&fit=crop",
+    "description": "Eggs poached in a spiced tomato-pepper sauce with feta and herbs. Skillet to table in twenty minutes.",
+    "prepTime": 5,
+    "cookTime": 20,
+    "servings": 3,
+    "tags": ["breakfast", "one-pan"],
+    "dietary": ["vegetarian", "gluten-free"],
+    "author": "Yotam Ottolenghi",
+    "customTags": [{"key": "cookware", "value": "cast-iron"}, {"key": "mealType", "value": "breakfast"}],
+    "ingredients": [
+      {"amount": "1", "unit": "tbsp", "name": "olive oil"},
+      {"amount": "1", "unit": "medium", "name": "onion, diced"},
+      {"amount": "1", "unit": "whole", "name": "red bell pepper, diced"},
+      {"amount": "2", "unit": "tsp", "name": "cumin"},
+      {"amount": "1", "unit": "tsp", "name": "smoked paprika"},
+      {"amount": "1", "unit": "can", "name": "crushed tomatoes (28 oz)"},
+      {"amount": "5", "unit": "whole", "name": "eggs"},
+      {"amount": "80", "unit": "g", "name": "feta, crumbled"}
+    ],
+    "instructions": [
+      "Sauté onion and pepper in oil until soft, about 6 minutes.",
+      "Bloom cumin and paprika in the pan for 30 seconds.",
+      "Add tomatoes and a pinch of sugar; simmer 8 minutes.",
+      "Make wells; crack eggs in and cover. Cook 5–7 minutes until whites set.",
+      "Top with feta, parsley, and a drizzle of oil. Serve with crusty bread."
+    ]
+  },
+  {
+    "id": "r9",
+    "title": "Buttermilk Pancakes",
+    "cuisine": "American",
+    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=900&auto=format&fit=crop",
+    "description": "Tall, tangy, melt-in-the-pan pancakes. Served with warm maple syrup and a slab of cold butter.",
+    "prepTime": 8,
+    "cookTime": 12,
+    "servings": 4,
+    "tags": ["breakfast", "15 min"],
+    "dietary": ["vegetarian"],
+    "author": "Me",
+    "customTags": [{"key": "mealType", "value": "breakfast"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "2", "unit": "cups", "name": "all-purpose flour"},
+      {"amount": "2", "unit": "tbsp", "name": "sugar"},
+      {"amount": "2", "unit": "tsp", "name": "baking powder"},
+      {"amount": "1", "unit": "tsp", "name": "baking soda"},
+      {"amount": "2", "unit": "cups", "name": "buttermilk"},
+      {"amount": "2", "unit": "whole", "name": "eggs"},
+      {"amount": "4", "unit": "tbsp", "name": "butter, melted"}
+    ],
+    "instructions": [
+      "Whisk dry ingredients in a large bowl with 3/4 tsp salt.",
+      "Combine buttermilk, eggs, and melted butter in a measuring cup.",
+      "Gently fold wet into dry until just combined; lumps are fine.",
+      "Cook 1/4-cup portions on a buttered griddle over medium until bubbles pop, then flip.",
+      "Hold in a 200°F oven while you finish the rest. Serve hot."
+    ]
+  },
+  {
+    "id": "r10",
+    "title": "Mushroom Risotto",
+    "cuisine": "Italian",
+    "image": "https://images.unsplash.com/photo-1633964913295-ceb43826a07f?w=900&auto=format&fit=crop",
+    "description": "Creamy carnaroli rice slow-stirred with porcini stock, cremini, and a generous shower of Parmigiano.",
+    "prepTime": 10,
+    "cookTime": 35,
+    "servings": 4,
+    "tags": ["vegetarian", "date night"],
+    "dietary": ["vegetarian"],
+    "author": "Marcella Hazan",
+    "customTags": [{"key": "occasion", "value": "date-night"}, {"key": "season", "value": "fall"}],
+    "ingredients": [
+      {"amount": "1.5", "unit": "cups", "name": "carnaroli or arborio rice"},
+      {"amount": "30", "unit": "g", "name": "dried porcini, soaked"},
+      {"amount": "250", "unit": "g", "name": "cremini mushrooms, sliced"},
+      {"amount": "1", "unit": "small", "name": "shallot, minced"},
+      {"amount": "1/2", "unit": "cup", "name": "dry white wine"},
+      {"amount": "5", "unit": "cups", "name": "warm stock"},
+      {"amount": "60", "unit": "g", "name": "Parmigiano, grated"}
+    ],
+    "instructions": [
+      "Brown cremini in butter until deeply colored; reserve.",
+      "Sweat shallot in butter; add rice and toast 90 seconds.",
+      "Deglaze with wine; add porcini and their strained liquid.",
+      "Add warm stock a ladle at a time, stirring often, for ~20 minutes.",
+      "Off heat, beat in cold butter and Parmigiano. Rest 2 minutes; serve loose."
+    ]
+  },
+  {
+    "id": "r11",
+    "title": "Vietnamese Caramel Tofu",
+    "cuisine": "Thai",
+    "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&auto=format&fit=crop",
+    "description": "Crispy tofu cubes glazed in a smoky coconut-caramel sauce with ginger, lime, and chili.",
+    "prepTime": 15,
+    "cookTime": 20,
+    "servings": 3,
+    "tags": ["vegan", "weeknight"],
+    "dietary": ["vegetarian", "vegan", "gluten-free", "dairy-free"],
+    "author": "Andrea Nguyen",
+    "customTags": [{"key": "cookware", "value": "wok"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "400", "unit": "g", "name": "firm tofu, cubed"},
+      {"amount": "1/4", "unit": "cup", "name": "cane sugar"},
+      {"amount": "2", "unit": "tbsp", "name": "soy sauce"},
+      {"amount": "1", "unit": "tbsp", "name": "ginger, grated"},
+      {"amount": "1", "unit": "whole", "name": "lime, juiced"},
+      {"amount": "1/2", "unit": "cup", "name": "coconut milk"},
+      {"amount": "1", "unit": "whole", "name": "red chili, sliced"}
+    ],
+    "instructions": [
+      "Press tofu 15 minutes; cube and sear in oil until golden on all sides.",
+      "In a clean pan, melt sugar to a deep amber caramel.",
+      "Carefully add coconut milk (it will sputter) and stir to dissolve.",
+      "Add soy, ginger, lime; reduce 3 minutes. Fold in tofu and chili.",
+      "Glaze tofu over high heat 2 minutes. Serve over jasmine rice."
+    ]
+  },
+  {
+    "id": "r12",
+    "title": "Slow-Roasted Carnitas",
+    "cuisine": "Mexican",
+    "image": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=900&auto=format&fit=crop",
+    "description": "Pork shoulder confit-style in citrus and lard until shreddable, then crisped under the broiler.",
+    "prepTime": 20,
+    "cookTime": 180,
+    "servings": 6,
+    "tags": ["weekend", "crowd"],
+    "dietary": ["gluten-free", "dairy-free"],
+    "author": "Roberto Santibañez",
+    "customTags": [{"key": "cookware", "value": "dutch-oven"}, {"key": "occasion", "value": "crowd"}, {"key": "season", "value": "winter"}],
+    "ingredients": [
+      {"amount": "1.5", "unit": "kg", "name": "pork shoulder, cubed"},
+      {"amount": "1", "unit": "whole", "name": "orange, halved"},
+      {"amount": "1", "unit": "whole", "name": "white onion, quartered"},
+      {"amount": "4", "unit": "cloves", "name": "garlic"},
+      {"amount": "2", "unit": "whole", "name": "bay leaves"},
+      {"amount": "1", "unit": "tbsp", "name": "cumin"},
+      {"amount": "1/2", "unit": "cup", "name": "lard or olive oil"}
+    ],
+    "instructions": [
+      "Season pork generously with salt; arrange in a Dutch oven with aromatics.",
+      "Add lard and orange halves (squeezed in). Cover and braise at 300°F for 2.5 hours.",
+      "Uncover, raise to 425°F; cook 25 minutes until edges are deeply browned.",
+      "Lift pork out, shred with forks, and toss with strained pan juices.",
+      "Crisp under the broiler 3 minutes. Serve with warm tortillas and salsa verde."
+    ]
+  },
+  {
+    "id": "r13",
+    "title": "Miso-Glazed Eggplant",
+    "cuisine": "Japanese",
+    "image": "https://images.unsplash.com/photo-1625944525533-473f1a3d54e7?w=900&auto=format&fit=crop",
+    "description": "Halved Japanese eggplant scored, broiled, and lacquered with sweet miso glaze. Vegan, weeknight-fast, deeply savory.",
+    "prepTime": 5,
+    "cookTime": 18,
+    "servings": 2,
+    "tags": ["vegan", "15 min"],
+    "dietary": ["vegetarian", "vegan", "dairy-free"],
+    "author": "Nancy Singleton Hachisu",
+    "customTags": [{"key": "cookware", "value": "broiler"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "2", "unit": "whole", "name": "Japanese eggplants"},
+      {"amount": "3", "unit": "tbsp", "name": "white miso"},
+      {"amount": "2", "unit": "tbsp", "name": "mirin"},
+      {"amount": "1", "unit": "tbsp", "name": "sake"},
+      {"amount": "1", "unit": "tbsp", "name": "sugar"},
+      {"amount": "1", "unit": "tsp", "name": "sesame seeds"}
+    ],
+    "instructions": [
+      "Halve eggplants and score the flesh in a diamond pattern.",
+      "Broil cut-side up for 8 minutes until tender and browning.",
+      "Whisk miso, mirin, sake, sugar into a smooth glaze.",
+      "Brush thickly over eggplants; broil 3–4 more minutes until bubbling.",
+      "Top with sesame and scallion. Serve over short-grain rice."
+    ]
+  },
+  {
+    "id": "r14",
+    "title": "Chana Masala",
+    "cuisine": "Indian",
+    "image": "https://images.unsplash.com/photo-1631452180775-f8c2eef9e3a4?w=900&auto=format&fit=crop",
+    "description": "Chickpeas simmered in a tangy tomato-onion gravy with toasted spices. Pantry-friendly comfort.",
+    "prepTime": 10,
+    "cookTime": 30,
+    "servings": 4,
+    "tags": ["vegan", "pantry"],
+    "dietary": ["vegetarian", "vegan", "gluten-free", "dairy-free"],
+    "author": "Meera Sodha",
+    "customTags": [{"key": "source", "value": "pantry"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "2", "unit": "cans", "name": "chickpeas, drained"},
+      {"amount": "1", "unit": "large", "name": "onion, finely diced"},
+      {"amount": "2", "unit": "cups", "name": "crushed tomatoes"},
+      {"amount": "1", "unit": "tbsp", "name": "ginger-garlic paste"},
+      {"amount": "2", "unit": "tsp", "name": "garam masala"},
+      {"amount": "1", "unit": "tsp", "name": "amchur (dried mango)"},
+      {"amount": "1", "unit": "tbsp", "name": "oil"}
+    ],
+    "instructions": [
+      "Brown the onion deeply in oil — at least 10 minutes.",
+      "Add ginger-garlic paste; cook 90 seconds until fragrant.",
+      "Stir in tomatoes and spices; simmer 10 minutes.",
+      "Add chickpeas with 1 cup water; simmer 12 more minutes.",
+      "Finish with amchur and a flurry of cilantro."
+    ]
+  },
+  {
+    "id": "r15",
+    "title": "Lemon Ricotta Pasta",
+    "cuisine": "Italian",
+    "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=900&auto=format&fit=crop",
+    "description": "Bright, creamy, fifteen-minute pasta. Whole-milk ricotta whipped with lemon zest, tossed through hot spaghetti.",
+    "prepTime": 5,
+    "cookTime": 10,
+    "servings": 2,
+    "tags": ["weeknight", "15 min"],
+    "dietary": ["vegetarian"],
+    "author": "Me",
+    "customTags": [{"key": "mealType", "value": "dinner"}, {"key": "season", "value": "spring"}],
+    "ingredients": [
+      {"amount": "200", "unit": "g", "name": "spaghetti"},
+      {"amount": "250", "unit": "g", "name": "whole-milk ricotta"},
+      {"amount": "1", "unit": "whole", "name": "lemon, zest + juice"},
+      {"amount": "40", "unit": "g", "name": "Parmigiano"},
+      {"amount": "2", "unit": "tbsp", "name": "olive oil"},
+      {"amount": "1", "unit": "pinch", "name": "red chili flake"}
+    ],
+    "instructions": [
+      "Cook pasta in heavily salted water until al dente; reserve 1 cup water.",
+      "Whip ricotta with zest, juice, oil, salt, and a splash of pasta water.",
+      "Toss pasta with ricotta sauce off heat; loosen with more water as needed.",
+      "Finish with Parmigiano, chili flake, more zest. Eat immediately."
+    ]
+  },
+  {
+    "id": "r16",
+    "title": "Banh Mi Meatballs",
+    "cuisine": "Thai",
+    "image": "https://images.unsplash.com/photo-1542528180-a1208c5169a5?w=900&auto=format&fit=crop",
+    "description": "Lemongrass-pork meatballs in a fish-sauce caramel, piled into baguettes with pickled carrot and herbs.",
+    "prepTime": 20,
+    "cookTime": 25,
+    "servings": 4,
+    "tags": ["weekend", "sandwich"],
+    "dietary": ["dairy-free"],
+    "author": "Andrea Nguyen",
+    "customTags": [{"key": "mealType", "value": "sandwich"}, {"key": "occasion", "value": "lunch"}],
+    "ingredients": [
+      {"amount": "500", "unit": "g", "name": "ground pork"},
+      {"amount": "2", "unit": "stalks", "name": "lemongrass, minced"},
+      {"amount": "3", "unit": "tbsp", "name": "fish sauce"},
+      {"amount": "2", "unit": "tbsp", "name": "sugar"},
+      {"amount": "1", "unit": "whole", "name": "baguette"},
+      {"amount": "1", "unit": "whole", "name": "carrot, pickled"},
+      {"amount": "1", "unit": "bunch", "name": "cilantro"}
+    ],
+    "instructions": [
+      "Mix pork with lemongrass, half the fish sauce, salt, pepper. Form 1-inch balls.",
+      "Sear meatballs in oil until deeply browned; remove.",
+      "Caramelize sugar in the pan; add remaining fish sauce and 1/4 cup water.",
+      "Return meatballs; glaze 2 minutes until lacquered.",
+      "Split baguette, layer meatballs, pickles, cilantro, mayo. Press and slice."
+    ]
+  },
+  {
+    "id": "r17",
+    "title": "Fattoush Salad",
+    "cuisine": "Middle Eastern",
+    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=900&auto=format&fit=crop",
+    "description": "A tumble of summer vegetables with toasted pita, sumac, and a sharp lemon-pomegranate dressing.",
+    "prepTime": 15,
+    "cookTime": 5,
+    "servings": 4,
+    "tags": ["salad", "15 min"],
+    "dietary": ["vegetarian", "vegan", "dairy-free"],
+    "author": "Yotam Ottolenghi",
+    "customTags": [{"key": "season", "value": "summer"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "2", "unit": "whole", "name": "pita, torn"},
+      {"amount": "2", "unit": "whole", "name": "tomatoes, wedged"},
+      {"amount": "1", "unit": "whole", "name": "cucumber, diced"},
+      {"amount": "1", "unit": "bunch", "name": "parsley, chopped"},
+      {"amount": "2", "unit": "tsp", "name": "sumac"},
+      {"amount": "2", "unit": "tbsp", "name": "pomegranate molasses"},
+      {"amount": "3", "unit": "tbsp", "name": "olive oil"}
+    ],
+    "instructions": [
+      "Toast pita pieces with olive oil at 400°F until shatter-crisp.",
+      "Combine vegetables and herbs in a wide bowl.",
+      "Whisk dressing: lemon, pomegranate molasses, oil, sumac, salt.",
+      "Toss salad with dressing and pita just before serving."
+    ]
+  },
+  {
+    "id": "r18",
+    "title": "Skillet Cornbread",
+    "cuisine": "American",
+    "image": "https://images.unsplash.com/photo-1612203985729-70726954388c?w=900&auto=format&fit=crop",
+    "description": "Crackly-edged buttermilk cornbread baked in a screaming-hot cast iron pan. Salty, sweet enough, never cakey.",
+    "prepTime": 10,
+    "cookTime": 25,
+    "servings": 8,
+    "tags": ["side", "sunday"],
+    "dietary": ["vegetarian"],
+    "author": "Edna Lewis",
+    "customTags": [{"key": "cookware", "value": "cast-iron"}, {"key": "occasion", "value": "sunday"}],
+    "ingredients": [
+      {"amount": "1.5", "unit": "cups", "name": "fine cornmeal"},
+      {"amount": "1/2", "unit": "cup", "name": "flour"},
+      {"amount": "2", "unit": "tsp", "name": "baking powder"},
+      {"amount": "1.5", "unit": "cups", "name": "buttermilk"},
+      {"amount": "2", "unit": "whole", "name": "eggs"},
+      {"amount": "6", "unit": "tbsp", "name": "butter, melted"},
+      {"amount": "2", "unit": "tbsp", "name": "honey"}
+    ],
+    "instructions": [
+      "Heat a 10-inch cast iron skillet in a 425°F oven for 15 minutes.",
+      "Whisk dry ingredients with 1 tsp salt.",
+      "Combine buttermilk, eggs, honey, and most of the butter; fold into dry.",
+      "Swirl remaining butter in the hot skillet; pour batter in.",
+      "Bake 22–25 minutes until top is deep gold and edges pull from the pan."
+    ]
+  },
+  {
+    "id": "r19",
+    "title": "Ratatouille Confit",
+    "cuisine": "French",
+    "image": "https://images.unsplash.com/photo-1572453800999-e8d2d1589b7c?w=900&auto=format&fit=crop",
+    "description": "Slow-baked ribbons of zucchini, eggplant, and tomato over a thyme-perfumed pepper base. Make-ahead, even better day two.",
+    "prepTime": 30,
+    "cookTime": 75,
+    "servings": 6,
+    "tags": ["vegan", "weekend"],
+    "dietary": ["vegetarian", "vegan", "gluten-free", "dairy-free"],
+    "author": "Julia Child",
+    "customTags": [{"key": "season", "value": "summer"}, {"key": "difficulty", "value": "medium"}],
+    "ingredients": [
+      {"amount": "2", "unit": "whole", "name": "zucchini, sliced thin"},
+      {"amount": "2", "unit": "whole", "name": "Japanese eggplant, sliced"},
+      {"amount": "4", "unit": "whole", "name": "roma tomatoes, sliced"},
+      {"amount": "2", "unit": "whole", "name": "red bell peppers"},
+      {"amount": "1", "unit": "whole", "name": "onion"},
+      {"amount": "4", "unit": "sprigs", "name": "thyme"},
+      {"amount": "1/3", "unit": "cup", "name": "olive oil"}
+    ],
+    "instructions": [
+      "Roast peppers under the broiler until charred; peel, seed, and blend with onion, garlic, oil, salt.",
+      "Spread pepper base in a wide baking dish.",
+      "Arrange overlapping vegetable slices on top in concentric rings.",
+      "Drizzle with oil, scatter thyme, cover with parchment.",
+      "Bake at 300°F for 75 minutes; uncover for last 15 to caramelize."
+    ]
+  },
+  {
+    "id": "r20",
+    "title": "Tomato & White Bean Stew",
+    "cuisine": "Mediterranean",
+    "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=900&auto=format&fit=crop",
+    "description": "Cannellini beans braised with garlic, rosemary, and good olive oil until the broth turns silky. Crusty bread mandatory.",
+    "prepTime": 10,
+    "cookTime": 30,
+    "servings": 4,
+    "tags": ["vegan", "one-pan"],
+    "dietary": ["vegetarian", "vegan", "dairy-free"],
+    "author": "Samin Nosrat",
+    "customTags": [{"key": "source", "value": "pantry"}, {"key": "cookware", "value": "dutch-oven"}],
+    "ingredients": [
+      {"amount": "2", "unit": "cans", "name": "cannellini beans"},
+      {"amount": "1", "unit": "can", "name": "whole tomatoes (28oz)"},
+      {"amount": "6", "unit": "cloves", "name": "garlic, smashed"},
+      {"amount": "2", "unit": "sprigs", "name": "rosemary"},
+      {"amount": "1/4", "unit": "cup", "name": "olive oil"},
+      {"amount": "1", "unit": "pinch", "name": "red chili flake"}
+    ],
+    "instructions": [
+      "Warm oil with garlic, rosemary, chili over low heat 5 minutes.",
+      "Crush tomatoes by hand into the pot; simmer 10 minutes.",
+      "Add beans with their liquid; cook 15 minutes until broth thickens.",
+      "Smash a few beans against the pot to enrich. Adjust salt.",
+      "Serve drowned in good oil, with grilled bread and parsley."
+    ]
+  },
+  {
+    "id": "r21",
+    "title": "Pork Al Pastor",
+    "cuisine": "Mexican",
+    "image": "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=900&auto=format&fit=crop",
+    "description": "Achiote-marinated pork charred under the broiler, layered with charred pineapple and cilantro on warm corn tortillas.",
+    "prepTime": 30,
+    "cookTime": 25,
+    "servings": 6,
+    "tags": ["weekend", "crowd"],
+    "dietary": ["gluten-free", "dairy-free"],
+    "author": "Pati Jinich",
+    "customTags": [{"key": "occasion", "value": "crowd"}, {"key": "cookware", "value": "broiler"}],
+    "ingredients": [
+      {"amount": "1", "unit": "kg", "name": "pork shoulder, sliced thin"},
+      {"amount": "3", "unit": "tbsp", "name": "achiote paste"},
+      {"amount": "3", "unit": "whole", "name": "guajillo chiles, soaked"},
+      {"amount": "1/2", "unit": "whole", "name": "pineapple, sliced"},
+      {"amount": "1/4", "unit": "cup", "name": "pineapple juice"},
+      {"amount": "12", "unit": "small", "name": "corn tortillas"}
+    ],
+    "instructions": [
+      "Blend achiote, chiles, pineapple juice, garlic, vinegar into a marinade.",
+      "Coat pork; refrigerate 4+ hours.",
+      "Stack pork on a vertical skewer (or pile on a sheet pan); broil hot until edges char.",
+      "Char pineapple slices under the broiler; dice fine.",
+      "Slice pork; serve on tortillas with pineapple, onion, cilantro, lime."
+    ]
+  },
+  {
+    "id": "r22",
+    "title": "Soba with Sesame Greens",
+    "cuisine": "Japanese",
+    "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=900&auto=format&fit=crop",
+    "description": "Cold buckwheat noodles with blanched greens, soft tofu, and a creamy black-sesame dressing.",
+    "prepTime": 15,
+    "cookTime": 8,
+    "servings": 2,
+    "tags": ["vegan", "15 min"],
+    "dietary": ["vegetarian", "vegan", "dairy-free"],
+    "author": "Nancy Singleton Hachisu",
+    "customTags": [{"key": "season", "value": "summer"}, {"key": "mealType", "value": "lunch"}],
+    "ingredients": [
+      {"amount": "200", "unit": "g", "name": "soba noodles"},
+      {"amount": "1", "unit": "bunch", "name": "spinach or komatsuna"},
+      {"amount": "200", "unit": "g", "name": "silken tofu"},
+      {"amount": "3", "unit": "tbsp", "name": "black sesame seeds"},
+      {"amount": "2", "unit": "tbsp", "name": "soy sauce"},
+      {"amount": "1", "unit": "tbsp", "name": "rice vinegar"}
+    ],
+    "instructions": [
+      "Boil soba 4 minutes; drain and rinse cold until firm.",
+      "Blanch greens 30 seconds; shock in ice water; squeeze and chop.",
+      "Toast sesame; grind with soy, vinegar, a splash of water into a paste.",
+      "Plate noodles, drape greens and tofu, spoon dressing over.",
+      "Top with sliced scallion and a final drift of toasted sesame."
+    ]
+  },
+  {
+    "id": "r23",
+    "title": "Tom Kha Gai",
+    "cuisine": "Thai",
+    "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=900&auto=format&fit=crop",
+    "description": "Coconut-galangal soup with chicken, mushrooms, and a citrusy hit of lime leaf. Bracing and rich at once.",
+    "prepTime": 10,
+    "cookTime": 20,
+    "servings": 4,
+    "tags": ["soup", "dinner"],
+    "dietary": ["gluten-free", "dairy-free"],
+    "author": "David Thompson",
+    "customTags": [{"key": "season", "value": "winter"}, {"key": "mealType", "value": "soup"}],
+    "ingredients": [
+      {"amount": "2", "unit": "cans", "name": "coconut milk"},
+      {"amount": "2", "unit": "cups", "name": "chicken stock"},
+      {"amount": "400", "unit": "g", "name": "chicken thighs, sliced"},
+      {"amount": "200", "unit": "g", "name": "oyster mushrooms"},
+      {"amount": "4", "unit": "slices", "name": "galangal"},
+      {"amount": "4", "unit": "leaves", "name": "kaffir lime"},
+      {"amount": "2", "unit": "tbsp", "name": "fish sauce"},
+      {"amount": "2", "unit": "whole", "name": "limes, juiced"}
+    ],
+    "instructions": [
+      "Simmer galangal, lime leaves, lemongrass in stock 5 minutes.",
+      "Add coconut milk and chicken; poach 10 minutes.",
+      "Add mushrooms; simmer 4 more minutes.",
+      "Off heat, season with fish sauce and lime juice.",
+      "Garnish with cilantro and bird's-eye chili."
+    ]
+  },
+  {
+    "id": "r24",
+    "title": "Chocolate Olive Oil Cake",
+    "cuisine": "Italian",
+    "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=900&auto=format&fit=crop",
+    "description": "A one-bowl, dairy-free chocolate cake with a fudgy crumb. Fruity olive oil and dark cocoa do all the work.",
+    "prepTime": 10,
+    "cookTime": 40,
+    "servings": 8,
+    "tags": ["dessert", "one-bowl"],
+    "dietary": ["vegetarian", "dairy-free"],
+    "author": "Nigella Lawson",
+    "customTags": [{"key": "mealType", "value": "dessert"}, {"key": "difficulty", "value": "easy"}],
+    "ingredients": [
+      {"amount": "1.5", "unit": "cups", "name": "flour"},
+      {"amount": "3/4", "unit": "cup", "name": "cocoa powder"},
+      {"amount": "1.5", "unit": "cups", "name": "sugar"},
+      {"amount": "2", "unit": "tsp", "name": "baking soda"},
+      {"amount": "2/3", "unit": "cup", "name": "olive oil"},
+      {"amount": "1.5", "unit": "cups", "name": "warm water"},
+      {"amount": "2", "unit": "tbsp", "name": "vinegar"},
+      {"amount": "1", "unit": "tbsp", "name": "vanilla"}
+    ],
+    "instructions": [
+      "Whisk dry ingredients in the cake pan itself.",
+      "Make three wells; pour in oil, vinegar, vanilla.",
+      "Pour warm water over; whisk until smooth.",
+      "Bake at 350°F for 35–40 minutes until set in center.",
+      "Cool fully; dust with cocoa or top with flaky salt."
+    ]
+  }
+]

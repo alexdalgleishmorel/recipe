@@ -1,0 +1,40 @@
+name: recipes
+description: "Recipe library, meal planner, and grocery list."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # HTTP client — ready for the future remote repository implementation.
+  http: ^1.2.0
+
+  # Local persistence for the in-memory mock data layer.
+  shared_preferences: ^2.3.0
+
+  # Bundled web fonts: Inter Tight, Newsreader, JetBrains Mono.
+  google_fonts: ^6.2.1
+
+  # File picker for the Upload dropzone.
+  file_picker: ^8.0.0
+
+  # Markdown rendering for AI chat replies.
+  flutter_markdown: ^0.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/seed/
