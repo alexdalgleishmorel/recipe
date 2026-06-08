@@ -1,2 +1,4 @@
-# Shared data-access layer dependencies. boto3 is provided by the Lambda runtime; pin extras here as
-# the layer grows (#12).
+# Shared data-access layer dependencies. boto3 (the only dependency of tables.py) is provided by the
+# Lambda runtime, so it is intentionally NOT vendored here — build.sh skips comment-only files. Add
+# any non-runtime extras below as the layer grows. Test-only deps (moto, pytest) live in
+# backend/tests/requirements-dev.txt.

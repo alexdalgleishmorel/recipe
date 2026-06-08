@@ -6,7 +6,7 @@ data "aws_region" "current" {}
 # the packaging + integration pattern end to end. The real surface area lands in later issues:
 #
 #   #11  — auth (Cognito user pool + JWT authorizer on the routes below)
-#   #12  — DynamoDB tables (recipes, plans, grocery lists) + IAM grants on the exec role
+#   #12  — DynamoDB tables (recipes, plans, collections, users, shares) + IAM grants  [DONE: tables.tf]
 #   #14  — recipes CRUD Lambdas + routes
 #   #15  — meal-plan CRUD Lambdas + routes
 #   #16  — grocery-list Lambdas + routes
@@ -43,14 +43,46 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# TODO(#12): attach a recipe-api-access inline policy granting dynamodb:* on the recipes / plans /
-# grocery tables once they exist. The hello handler needs no extra permissions today.
+# DynamoDB data access (#12): grant the exec role item-level ops on each entity table and its indexes.
+# Scoped to exactly the recipe-* table arns (+ /index/* for the GSIs) — no wildcard on the service.
+resource "aws_iam_role_policy" "lambda_dynamodb" {
+  name = "recipe-api-access"
+  role = aws_iam_role.lambda.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:Query",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+      ]
+      Resource = flatten([
+        for t in [
+          aws_dynamodb_table.recipes,
+          aws_dynamodb_table.meal_plans,
+          aws_dynamodb_table.collections,
+          aws_dynamodb_table.users,
+          aws_dynamodb_table.shares,
+        ] : [t.arn, "${t.arn}/index/*"]
+      ])
+    }]
+  })
+}
 
 # --- Lambdas --------------------------------------------------------------------------------------
 locals {
   lambda_env = {
-    # TODO(#12): inject table names here, e.g. RECIPES_TABLE = aws_dynamodb_table.recipes.name
-    STAGE = "shared"
+    STAGE             = "shared"
+    RECIPES_TABLE     = aws_dynamodb_table.recipes.name
+    MEAL_PLANS_TABLE  = aws_dynamodb_table.meal_plans.name
+    COLLECTIONS_TABLE = aws_dynamodb_table.collections.name
+    USERS_TABLE       = aws_dynamodb_table.users.name
+    SHARES_TABLE      = aws_dynamodb_table.shares.name
   }
 
   # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue.
