@@ -72,7 +72,6 @@ class _NewPlanFormState extends State<_NewPlanForm> {
       meals: mealsOrdered,
       candidates: const [],
       grid: List.generate(r.days.length, (_) => List<String?>.filled(mealsOrdered.length, null)),
-      chat: const [],
     );
     Navigator.of(context, rootNavigator: true).pop(plan);
   }
