@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/collection.dart';
 import '../models/custom_tag.dart';
 import '../models/ingredient.dart';
 import '../models/meal_plan.dart';
@@ -9,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/buttons.dart';
 import '../widgets/ingredient_editor.dart';
 import '../widgets/instruction_editor.dart';
+import '../widgets/modals/add_to_collection_modal.dart';
 import '../widgets/modals/add_to_plan_modal.dart';
 import '../widgets/modals/delete_recipe_modal.dart';
 import '../widgets/page_head.dart';
@@ -23,6 +25,8 @@ class RecipeDetailScreen extends StatefulWidget {
     required this.plansRepo,
     required this.plans,
     required this.onChanged,
+    this.collectionsRepo,
+    this.collections = const [],
     this.startInEditMode = false,
   });
 
@@ -31,6 +35,8 @@ class RecipeDetailScreen extends StatefulWidget {
   final MealPlansRepository plansRepo;
   final List<MealPlan> plans;
   final Future<void> Function() onChanged;
+  final CollectionsRepository? collectionsRepo;
+  final List<Collection> collections;
   final bool startInEditMode;
 
   @override
@@ -99,6 +105,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       result.created
           ? 'New draft created with ${r.title}'
           : 'Added to ${result.plan.displayName}',
+    );
+  }
+
+  Future<void> _addToCollection() async {
+    final r = _recipe;
+    final repo = widget.collectionsRepo;
+    if (r == null || repo == null) return;
+    final result = await openAddToCollectionModal(context, recipe: r, collections: widget.collections);
+    if (result == null) return;
+    if (result.alreadyPresent) {
+      if (!mounted) return;
+      showToast(context, 'Already in ${result.collection.name}');
+      return;
+    }
+    await repo.save(result.collection);
+    await widget.onChanged();
+    if (!mounted) return;
+    showToast(
+      context,
+      result.created
+          ? 'Created ${result.collection.name} with ${r.title}'
+          : 'Added to ${result.collection.name}',
     );
   }
 
@@ -338,6 +366,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             _editing = true;
           })),
       Btn(label: 'Add to meal plan', icon: Icons.calendar_today_outlined, variant: BtnVariant.primary, onPressed: _addToPlan),
+      if (widget.collectionsRepo != null)
+        Btn(label: 'Add to collection', icon: Icons.folder_outlined, onPressed: _addToCollection),
       Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
     ]);
   }

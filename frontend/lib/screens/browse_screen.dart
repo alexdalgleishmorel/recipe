@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../services/repositories.dart';
@@ -18,13 +19,17 @@ class BrowseScreen extends StatefulWidget {
     required this.recipesRepo,
     required this.plansRepo,
     required this.plans,
+    required this.collectionsRepo,
+    required this.collections,
     required this.onChanged,
   });
 
   final List<Recipe> recipes;
   final List<MealPlan> plans;
+  final List<Collection> collections;
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
+  final CollectionsRepository collectionsRepo;
   final Future<void> Function() onChanged;
 
   @override
@@ -101,6 +106,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
                         recipesRepo: widget.recipesRepo,
                         plansRepo: widget.plansRepo,
                         plans: widget.plans,
+                        collectionsRepo: widget.collectionsRepo,
+                        collections: widget.collections,
                         onChanged: widget.onChanged,
                       ),
                     )),
