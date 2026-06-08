@@ -14,3 +14,9 @@ variable "cors_allowed_origins" {
   type        = list(string)
   default     = ["https://alexdalgleishmorel.github.io"]
 }
+
+variable "admin_email" {
+  description = "Email granted admin entitlements (isAdmin) when its profile is lazy-created (#13)."
+  type        = string
+  default     = "alex.dalgleishmorel@gmail.com"
+}

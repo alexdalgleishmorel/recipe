@@ -21,18 +21,24 @@ from typing import Any, Optional
 # Header a dev/test client sends to act as a given user while the authorizer is deferred (#11).
 DEV_USER_HEADER = "x-user-id"
 DEV_USER_ENV = "DEV_USER_ID"
+# Header a dev/test client sends to supply the caller's email while the authorizer is deferred (#11).
+DEV_EMAIL_HEADER = "x-user-email"
 
 
 class Unauthorized(Exception):
     """Raised when no caller identity can be resolved from the request."""
 
 
-def _jwt_sub(event: dict) -> Optional[str]:
-    """Return the verified ``sub`` claim from the JWT authorizer context, if present."""
+def _jwt_claims(event: dict) -> dict:
+    """Return the verified JWT claims from the authorizer context (empty dict if none)."""
     ctx = (event or {}).get("requestContext") or {}
     authorizer = ctx.get("authorizer") or {}
-    claims = (authorizer.get("jwt") or {}).get("claims") or {}
-    sub = claims.get("sub")
+    return (authorizer.get("jwt") or {}).get("claims") or {}
+
+
+def _jwt_sub(event: dict) -> Optional[str]:
+    """Return the verified ``sub`` claim from the JWT authorizer context, if present."""
+    sub = _jwt_claims(event).get("sub")
     return sub or None
 
 
@@ -66,3 +72,28 @@ def get_user_id(event: dict[str, Any]) -> str:
         return env_user
 
     raise Unauthorized("no caller identity (no JWT claims, x-user-id header, or DEV_USER_ID)")
+
+
+def get_user_email(event: dict[str, Any]) -> Optional[str]:
+    """Resolve the caller's email for ``event``, or ``None`` if unknown.
+
+    Order: the JWT ``email`` claim (production), then the ``x-user-email`` dev header. Unlike
+    :func:`get_user_id` this never raises — the email is best-effort profile metadata, not identity.
+
+    TODO(#11): remove the dev-header fallback once the JWT authorizer is attached to the routes.
+    """
+    email = _jwt_claims(event).get("email")
+    if email:
+        return email
+
+    header_email = _header(event, DEV_EMAIL_HEADER)
+    if header_email:
+        return header_email
+
+    return None
+
+
+def jwt_name(event: dict[str, Any]) -> Optional[str]:
+    """Return the JWT ``name`` claim (the IdP-provided display name), if present."""
+    name = _jwt_claims(event).get("name")
+    return name or None

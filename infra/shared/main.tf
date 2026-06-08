@@ -83,6 +83,8 @@ locals {
     COLLECTIONS_TABLE = aws_dynamodb_table.collections.name
     USERS_TABLE       = aws_dynamodb_table.users.name
     SHARES_TABLE      = aws_dynamodb_table.shares.name
+    # Email granted admin entitlements when its profile is lazy-created (#13, me handler).
+    ADMIN_EMAIL = var.admin_email
   }
 
   # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue by
@@ -94,6 +96,7 @@ locals {
     local.recipes_handlers,
     local.plans_handlers,
     local.collections_handlers,
+    local.me_handlers,
   )
 }
 
@@ -126,9 +129,9 @@ resource "aws_apigatewayv2_api" "http" {
   cors_configuration {
     allow_origins = var.cors_allowed_origins
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    # x-user-id is the dev-identity header (until the Cognito JWT authorizer in #11);
+    # x-user-id / x-user-email are the dev-identity headers (until the Cognito JWT authorizer in #11);
     # authorization carries the bearer JWT afterward.
-    allow_headers = ["content-type", "authorization", "x-user-id"]
+    allow_headers = ["content-type", "authorization", "x-user-id", "x-user-email"]
   }
 }
 
@@ -155,6 +158,7 @@ locals {
     local.recipes_routes,
     local.plans_routes,
     local.collections_routes,
+    local.me_routes,
   )
 }
 
