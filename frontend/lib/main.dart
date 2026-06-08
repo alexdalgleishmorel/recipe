@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'services/local_auth_repository.dart';
 import 'services/local_collections_repository.dart';
 import 'services/local_meal_plans_repository.dart';
 import 'services/local_recipes_repository.dart';
 import 'services/local_settings_repository.dart';
 import 'services/repositories.dart';
 import 'theme/app_theme.dart';
-import 'widgets/app_shell.dart';
+import 'widgets/auth_gate.dart';
 
 void main() {
   // Repositories — swap these implementations for `HttpRecipesRepository`
@@ -15,12 +16,14 @@ void main() {
   final MealPlansRepository plansRepo = LocalMealPlansRepository();
   final CollectionsRepository collectionsRepo = LocalCollectionsRepository();
   final SettingsRepository settingsRepo = LocalSettingsRepository();
+  final AuthRepository authRepo = LocalAuthRepository();
 
   runApp(RecipesApp(
     recipesRepo: recipesRepo,
     plansRepo: plansRepo,
     collectionsRepo: collectionsRepo,
     settingsRepo: settingsRepo,
+    authRepo: authRepo,
   ));
 }
 
@@ -31,12 +34,14 @@ class RecipesApp extends StatefulWidget {
     required this.plansRepo,
     required this.collectionsRepo,
     required this.settingsRepo,
+    required this.authRepo,
   });
 
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
   final SettingsRepository settingsRepo;
+  final AuthRepository authRepo;
 
   @override
   State<RecipesApp> createState() => _RecipesAppState();
@@ -70,7 +75,8 @@ class _RecipesAppState extends State<RecipesApp> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
-      home: AppShell(
+      home: AuthGate(
+        authRepo: widget.authRepo,
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
         collectionsRepo: widget.collectionsRepo,
