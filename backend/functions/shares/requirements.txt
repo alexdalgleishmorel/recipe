@@ -1,0 +1,3 @@
+# Runtime dependencies for the shares handler. None today — boto3 is provided by the Lambda runtime,
+# and the data_access + common layers are bundled by build.sh. Listed so build.sh has a consistent
+# place to vendor deps from per function.

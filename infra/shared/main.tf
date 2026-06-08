@@ -100,6 +100,7 @@ locals {
     local.collections_handlers,
     local.me_handlers,
     local.uploads_handlers,
+    local.shares_handlers,
   )
 }
 
@@ -163,6 +164,7 @@ locals {
     local.collections_routes,
     local.me_routes,
     local.uploads_routes,
+    local.shares_routes,
   )
 }
 

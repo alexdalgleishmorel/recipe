@@ -2,7 +2,8 @@
 
 Schema (set in ``infra/shared/tables.tf``): every table has PK ``userId`` (S) and SK ``entityId``
 (S), ``PAY_PER_REQUEST``. The ``users`` table has an ``email_index`` GSI (HASH = ``email``); the
-``shares`` table a ``token_index`` GSI (HASH = ``token``).
+``shares`` table a ``token_index`` GSI (HASH = ``token``) and a ``recipient_email_index`` GSI
+(HASH = ``recipientEmail``) for listing the shares pending against an email.
 
 An item is ``{userId, entityId, doc: <entity JSON...>, <GSI keys...>}``: the Flutter model's own
 ``toJson`` map is stored intact under the ``doc`` attribute (so a model field can't collide with the
@@ -173,13 +174,54 @@ class GsiLookupTable(EntityTable):
         return _read_doc(items[0]) if items else None
 
 
+class SharesTable(GsiLookupTable):
+    """The shares table: a userId-partitioned entity table with *two* GSIs.
+
+    Beyond the inherited ``token`` lookup (``token_index``), shares can be addressed to a recipient by
+    email before that recipient has any row of their own — so ``/shares/incoming`` resolves pending
+    shares by the caller's email via a second GSI (``recipient_email_index``). Both GSI keys are
+    promoted to top-level item attributes on write (empty/missing values skipped, as DynamoDB rejects
+    an empty indexed key and a value-less item is simply absent from the index).
+    """
+
+    RECIPIENT_EMAIL_INDEX = "recipient_email_index"
+    RECIPIENT_EMAIL_KEY = "recipientEmail"
+
+    def _to_item(self, user_id: str, model: dict) -> dict:
+        item = super()._to_item(user_id, model)
+        email = model.get(self.RECIPIENT_EMAIL_KEY)
+        if email:
+            item[self.RECIPIENT_EMAIL_KEY] = email
+        return item
+
+    def get_by_token(self, token: str) -> Optional[dict]:
+        """Resolve a single share by its opaque link ``token`` (``token_index``)."""
+        return self.get_by_index(token)
+
+    def list_by_recipient_email(self, email: str) -> list[dict]:
+        """Return every share addressed to ``email`` (``recipient_email_index``), as model JSON."""
+        items: list[dict] = []
+        kwargs: dict[str, Any] = {
+            "IndexName": self.RECIPIENT_EMAIL_INDEX,
+            "KeyConditionExpression": Key(self.RECIPIENT_EMAIL_KEY).eq(email),
+        }
+        table = _table(self.name)
+        while True:
+            resp = table.query(**kwargs)
+            items.extend(resp.get("Items", []))
+            start = resp.get("LastEvaluatedKey")
+            if not start:
+                break
+            kwargs["ExclusiveStartKey"] = start
+        return [_read_doc(i) for i in items]
+
+
 # --- configured accessors (env var -> name from Terraform's lambda_env; defaults match tables.tf) --
 recipes = EntityTable("RECIPES_TABLE", "recipe-recipes")
 meal_plans = EntityTable("MEAL_PLANS_TABLE", "recipe-meal-plans")
 collections = EntityTable("COLLECTIONS_TABLE", "recipe-collections")
 users = GsiLookupTable("USERS_TABLE", "recipe-users", "email_index", "email")
-shares = GsiLookupTable("SHARES_TABLE", "recipe-shares", "token_index", "token")
+shares = SharesTable("SHARES_TABLE", "recipe-shares", "token_index", "token")
 
-# Semantic aliases for the two GSI lookups (read better at call sites than get_by_index).
+# Semantic alias for the users GSI lookup (reads better at call sites than get_by_index).
 users.get_by_email = users.get_by_index  # type: ignore[attr-defined]
-shares.get_by_token = shares.get_by_index  # type: ignore[attr-defined]

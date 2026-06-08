@@ -103,9 +103,17 @@ resource "aws_dynamodb_table" "users" {
 }
 
 # --- Share ----------------------------------------------------------------------------------------
-# A Share row records a fork-copy invitation owned by the sharer (PK = sharer userId). The token_index
-# GSI resolves a Share by its opaque link token so a recipient can redeem a link share without knowing
-# the owner. Tokens are unique; projection ALL returns the full share record on lookup.
+# A Share row records a fork-copy invitation owned by the sharer (PK = sharer userId). Two non-owner
+# lookups need GSIs:
+#
+#   * token_index          — resolve a Share by its opaque link token so a recipient can redeem a link
+#                            share without knowing the owner.
+#   * recipient_email_index — list the shares targeted at a recipient who has no row under their own
+#                            userId yet (the sharer addressed them by email before they signed in, so
+#                            /shares/incoming has to find pending shares by the caller's email).
+#
+# Tokens and emails are unique enough to identify; projection ALL returns the full share record (incl.
+# the snapshot) on lookup.
 resource "aws_dynamodb_table" "shares" {
   name         = "recipe-shares"
   billing_mode = "PAY_PER_REQUEST"
@@ -124,10 +132,20 @@ resource "aws_dynamodb_table" "shares" {
     name = "token"
     type = "S"
   }
+  attribute {
+    name = "recipientEmail"
+    type = "S"
+  }
 
   global_secondary_index {
     name            = "token_index"
     hash_key        = "token"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "recipient_email_index"
+    hash_key        = "recipientEmail"
     projection_type = "ALL"
   }
 }
