@@ -26,8 +26,8 @@ data "aws_iam_openid_connect_provider" "github" {
 }
 
 locals {
-  repo_sub_prefix = "repo:${var.github_org}/${var.github_repo}"
-  github_oidc_arn = var.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
+  repo_sub_prefixes = [for r in var.github_repos : "repo:${var.github_org}/${r}"]
+  github_oidc_arn   = var.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
 }
 
 # --- Trust policies -------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "plan_trust" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["${local.repo_sub_prefix}:ref:refs/heads/*"]
+      values   = [for p in local.repo_sub_prefixes : "${p}:ref:refs/heads/*"]
     }
   }
 }
@@ -75,10 +75,12 @@ data "aws_iam_policy_document" "deploy_trust" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values = [
-        "${local.repo_sub_prefix}:ref:refs/heads/main",
-        "${local.repo_sub_prefix}:environment:${var.deploy_environment}",
-      ]
+      values = flatten([
+        for p in local.repo_sub_prefixes : [
+          "${p}:ref:refs/heads/main",
+          "${p}:environment:${var.deploy_environment}",
+        ]
+      ])
     }
   }
 }

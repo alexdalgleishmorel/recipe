@@ -10,10 +10,10 @@ variable "github_org" {
   default     = "alexdalgleishmorel"
 }
 
-variable "github_repo" {
-  description = "Repository name scoped in the OIDC trust policy."
-  type        = string
-  default     = "recipe"
+variable "github_repos" {
+  description = "Repository name(s) scoped in the OIDC trust policy. Includes both 'recipe' and 'recipes' to cover the repo rename."
+  type        = list(string)
+  default     = ["recipe", "recipes"]
 }
 
 variable "state_bucket_name" {
