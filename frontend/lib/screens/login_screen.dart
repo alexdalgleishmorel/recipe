@@ -81,13 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   enabled: !_busy,
                   onTap: () => _signIn(widget.authRepo.signInWithGoogle),
                 ),
-                const SizedBox(height: 12),
-                _SignInButton(
-                  icon: Icons.apple,
-                  label: 'Continue with Apple',
-                  enabled: !_busy,
-                  onTap: () => _signIn(widget.authRepo.signInWithApple),
-                ),
                 if (_busy) ...[
                   const SizedBox(height: 24),
                   Center(

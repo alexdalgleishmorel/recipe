@@ -46,7 +46,6 @@ abstract class AuthRepository {
   /// The currently signed-in user, or null if signed out.
   Future<User?> currentUser();
   Future<User> signInWithGoogle();
-  Future<User> signInWithApple();
   Future<void> signOut();
 
   /// Toggle the AI-import entitlement (#6) for the current account and return
