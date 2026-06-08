@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'services/cognito_auth_repository.dart';
+import 'services/http_admin_repository.dart';
 import 'services/http_api_client.dart';
 import 'services/http_collections_repository.dart';
 import 'services/http_meal_plans_repository.dart';
 import 'services/http_recipe_import_service.dart';
 import 'services/http_recipes_repository.dart';
 import 'services/http_sharing_repository.dart';
+import 'services/local_admin_repository.dart';
 import 'services/local_auth_repository.dart';
 import 'services/local_collections_repository.dart';
 import 'services/local_meal_plans_repository.dart';
@@ -44,6 +46,7 @@ class _Repos {
     required this.auth,
     required this.sharing,
     required this.importService,
+    required this.admin,
   });
 
   final RecipesRepository recipes;
@@ -53,6 +56,7 @@ class _Repos {
   final AuthRepository auth;
   final SharingRepository sharing;
   final RecipeImportService importService;
+  final AdminRepository admin;
 }
 
 _Repos _buildRepos() {
@@ -79,6 +83,7 @@ _Repos _buildRepos() {
       auth: auth,
       sharing: sharing,
       importService: importService,
+      admin: HttpAdminRepository(api),
     );
   }
 
@@ -98,6 +103,7 @@ _Repos _buildRepos() {
       collectionsRepo: collections,
     ),
     importService: importService,
+    admin: LocalAdminRepository(),
   );
 }
 
@@ -111,6 +117,7 @@ void main() {
     authRepo: repos.auth,
     sharingRepo: repos.sharing,
     importService: repos.importService,
+    adminRepo: repos.admin,
   ));
 }
 
@@ -124,6 +131,7 @@ class RecipesApp extends StatefulWidget {
     required this.authRepo,
     required this.sharingRepo,
     required this.importService,
+    required this.adminRepo,
   });
 
   final RecipesRepository recipesRepo;
@@ -133,6 +141,7 @@ class RecipesApp extends StatefulWidget {
   final AuthRepository authRepo;
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
+  final AdminRepository adminRepo;
 
   @override
   State<RecipesApp> createState() => _RecipesAppState();
@@ -173,6 +182,7 @@ class _RecipesAppState extends State<RecipesApp> {
         collectionsRepo: widget.collectionsRepo,
         sharingRepo: widget.sharingRepo,
         importService: widget.importService,
+        adminRepo: widget.adminRepo,
         isDark: _dark,
         onToggleTheme: _toggleTheme,
       ),

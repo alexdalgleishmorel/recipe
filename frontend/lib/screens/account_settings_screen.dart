@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/user.dart';
+import '../services/repositories.dart';
 import '../theme/app_theme.dart';
 import '../widgets/page_head.dart';
+import 'admin_users_screen.dart';
 
 /// Account settings page. Surfaces the signed-in account's name/email plus the
 /// app-level controls that used to live in the side nav: the dark-mode toggle,
@@ -20,6 +22,7 @@ class AccountSettingsScreen extends StatefulWidget {
     required this.onToggleTheme,
     required this.onSignOut,
     required this.onSetCanAiImport,
+    required this.adminRepo,
   });
 
   final User user;
@@ -29,6 +32,10 @@ class AccountSettingsScreen extends StatefulWidget {
 
   /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
   final Future<void> Function(bool) onSetCanAiImport;
+
+  /// Backs the admin-only "Manage users" entry (#66), which lists all accounts
+  /// and lets an admin flip each one's AI-import entitlement.
+  final AdminRepository adminRepo;
 
   @override
   State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
@@ -108,6 +115,19 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
               ],
             ],
           ),
+          if (_user.isAdmin) ...[
+            const SizedBox(height: 16),
+            _NavCard(
+              title: 'Manage users',
+              subtitle: 'Enable AI import for other accounts',
+              icon: Icons.group_outlined,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AdminUsersScreen(adminRepo: widget.adminRepo),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           _SignOutButton(onSignOut: widget.onSignOut),
         ],
@@ -134,6 +154,71 @@ class _SettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: children,
+      ),
+    );
+  }
+}
+
+/// A tappable card row that navigates onward, styled like `_SettingsCard` with
+/// a leading icon and a trailing chevron. Used for the admin "Manage users"
+/// entry (#66).
+class _NavCard extends StatelessWidget {
+  const _NavCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final rt = context.rt;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: RecipeRadius.cardBR,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: RecipeRadius.cardBR,
+        hoverColor: rt.paper2,
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: rt.paper,
+            borderRadius: RecipeRadius.cardBR,
+            border: Border.all(color: rt.hair),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: rt.ink2),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: rt.ink,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(fontSize: 12, color: rt.ink3)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(Icons.chevron_right, size: 18, color: rt.ink3),
+            ],
+          ),
+        ),
       ),
     );
   }
