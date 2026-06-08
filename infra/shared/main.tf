@@ -92,6 +92,7 @@ locals {
       hello = "hello.handler"
     },
     local.recipes_handlers,
+    local.plans_handlers,
   )
 }
 
@@ -149,6 +150,7 @@ locals {
       hello = { key = "GET /hello", integration = "hello", auth = false }
     },
     local.recipes_routes,
+    local.plans_routes,
   )
 }
 
