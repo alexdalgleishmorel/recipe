@@ -44,15 +44,4 @@ class LocalAuthRepository implements AuthRepository {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userKey);
   }
-
-  @override
-  Future<User> setCanAiImport(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_userKey);
-    final current =
-        raw != null ? User.fromJson(jsonDecode(raw) as Map<String, dynamic>) : _demoUser;
-    final updated = current.copyWith(canAiImport: value);
-    await prefs.setString(_userKey, jsonEncode(updated.toJson()));
-    return updated;
-  }
 }

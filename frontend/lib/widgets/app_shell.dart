@@ -34,7 +34,6 @@ class AppShell extends StatefulWidget {
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
-    required this.onSetCanAiImport,
   });
 
   /// The signed-in user. Later issues read `user.isAdmin` (#5 sharing) and
@@ -50,10 +49,6 @@ class AppShell extends StatefulWidget {
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
-
-  /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
-  /// Local approximation of the admin endpoint (#20).
-  final Future<void> Function(bool) onSetCanAiImport;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -113,7 +108,6 @@ class _AppShellState extends State<AppShell> {
         isDark: widget.isDark,
         onToggleTheme: widget.onToggleTheme,
         onSignOut: widget.onSignOut,
-        onSetCanAiImport: widget.onSetCanAiImport,
         adminRepo: widget.adminRepo,
       ),
     ));

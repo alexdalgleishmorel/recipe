@@ -2,6 +2,8 @@
 
 A recipe library, meal planner, and grocery-list app.
 
+Live: <https://alexdalgleishmorel.github.io/recipes/>
+
 Browse a personal cookbook with a Datadog-style query language, sketch a week
 of meals on a day×meal calendar, get an automatically aggregated grocery list
 from whichever meals you select, and (eventually) hand the planning over to an

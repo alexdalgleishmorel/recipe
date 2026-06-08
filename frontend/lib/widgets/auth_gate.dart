@@ -80,12 +80,6 @@ class _AuthGateState extends State<AuthGate> {
     setState(() => _user = null);
   }
 
-  Future<void> _setCanAiImport(bool value) async {
-    final updated = await widget.authRepo.setCanAiImport(value);
-    if (!mounted) return;
-    setState(() => _user = updated);
-  }
-
   @override
   Widget build(BuildContext context) {
     final rt = context.rt;
@@ -160,7 +154,6 @@ class _AuthGateState extends State<AuthGate> {
       isDark: widget.isDark,
       onToggleTheme: widget.onToggleTheme,
       onSignOut: _signOut,
-      onSetCanAiImport: _setCanAiImport,
     );
   }
 }
