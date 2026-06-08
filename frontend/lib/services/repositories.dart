@@ -47,11 +47,6 @@ abstract class AuthRepository {
   Future<User?> currentUser();
   Future<User> signInWithGoogle();
   Future<void> signOut();
-
-  /// Toggle the AI-import entitlement (#6) for the current account and return
-  /// the updated user. This is the local approximation of the admin endpoint
-  /// (#20); a real backend would scope this to admin callers.
-  Future<User> setCanAiImport(bool value);
 }
 
 /// Admin-only management of other accounts' entitlements (#66). Backed by the

@@ -26,8 +26,6 @@ import 'repositories.dart';
 ///    or — if a valid id_token is already stored — calls `GET /me` for the
 ///    authoritative profile (refreshing once on 401 when possible).
 ///  - [signOut] clears tokens (and best-effort hits the Hosted UI `/logout`).
-///  - [setCanAiImport] calls the admin entitlements endpoint then re-reads
-///    `/me`.
 ///
 /// Config is read via `--dart-define` with sensible defaults matching the
 /// deployed stack.
@@ -164,36 +162,6 @@ class CognitoAuthRepository implements AuthRepository {
       });
       web.window.location.assign(logout.toString());
     }
-  }
-
-  @override
-  Future<User> setCanAiImport(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    final current = await _fetchMe(prefs, retryOn401: true);
-    if (current == null) {
-      throw StateError('Not signed in.');
-    }
-
-    final token = prefs.getString(_kIdToken);
-    final res = await _client.post(
-      Uri.parse('$_apiBase/admin/entitlements'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'userId': current.id, 'canAiImport': value}),
-    );
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw http.ClientException(
-        'Failed to set entitlement (${res.statusCode}): ${res.body}',
-      );
-    }
-
-    final updated = await _fetchMe(prefs, retryOn401: false);
-    if (updated == null) {
-      throw StateError('Lost session after updating entitlement.');
-    }
-    return updated;
   }
 
   /// The current Cognito **id_token**, refreshing it first if expired. Returns

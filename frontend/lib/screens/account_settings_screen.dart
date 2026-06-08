@@ -12,8 +12,7 @@ import 'admin_users_screen.dart';
 ///
 /// AI-import entitlements are managed entirely from "Manage users" (including
 /// the admin's own account), so this screen no longer carries a standalone
-/// toggle (#70). The `onSetCanAiImport` callback is retained for the
-/// AppShell/AuthGate contract but is unused here.
+/// toggle (#70).
 class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({
     super.key,
@@ -21,7 +20,6 @@ class AccountSettingsScreen extends StatefulWidget {
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
-    required this.onSetCanAiImport,
     required this.adminRepo,
   });
 
@@ -29,10 +27,6 @@ class AccountSettingsScreen extends StatefulWidget {
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
-
-  /// Retained for the AppShell/AuthGate contract. AI-import entitlements are now
-  /// managed via "Manage users" (#70), so this is no longer surfaced here.
-  final Future<void> Function(bool) onSetCanAiImport;
 
   /// Backs the admin-only "Manage users" entry (#66), which lists all accounts
   /// and lets an admin flip each one's AI-import entitlement.
