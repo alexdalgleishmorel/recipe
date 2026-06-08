@@ -67,13 +67,22 @@ class HttpApiClient {
   }
 
   /// POST [body] to [path] and decode the JSON response.
-  Future<dynamic> postJson(String path, Map<String, dynamic> body) async {
+  ///
+  /// By default a 403 is treated as an auth failure ([ApiAuthException]) like a
+  /// 401. Set [auth403] to false when 403 is a meaningful application response
+  /// the caller wants to handle itself (e.g. the import endpoint's
+  /// not-entitled signal), in which case it surfaces as [ApiException].
+  Future<dynamic> postJson(
+    String path,
+    Map<String, dynamic> body, {
+    bool auth403 = true,
+  }) async {
     final res = await _client.post(
       _uri(path),
       headers: await _headers(json: true),
       body: jsonEncode(body),
     );
-    return _decode(res);
+    return _decode(res, auth403: auth403);
   }
 
   /// PUT [body] to [path] and decode the JSON response.
@@ -92,8 +101,8 @@ class HttpApiClient {
     _decode(res, allow404: true);
   }
 
-  dynamic _decode(http.Response res, {bool allow404 = false}) {
-    if (res.statusCode == 401 || res.statusCode == 403) {
+  dynamic _decode(http.Response res, {bool allow404 = false, bool auth403 = true}) {
+    if (res.statusCode == 401 || (auth403 && res.statusCode == 403)) {
       throw ApiAuthException('Session expired or unauthorized.');
     }
     if (allow404 && res.statusCode == 404) return null;

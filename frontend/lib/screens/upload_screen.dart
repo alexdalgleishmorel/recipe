@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
 import '../models/user.dart';
+import '../services/http_recipe_import_service.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
 import '../utils/id_gen.dart';
@@ -58,7 +59,10 @@ class _UploadScreenState extends State<UploadScreen> {
         _stage = _UploadStage.empty;
         _filename = '';
       });
-      showToast(context, 'Could not parse that file');
+      final message = e is RecipeImportException
+          ? e.message
+          : 'Could not parse that file';
+      showToast(context, message);
     }
   }
 
