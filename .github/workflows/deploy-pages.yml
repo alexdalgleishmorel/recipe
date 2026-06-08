@@ -35,7 +35,19 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build web --release --base-href=/recipe/
+      # Production build: point the app at the live backend (Cognito + API).
+      # Config comes from repo variables; OAUTH_REDIRECT_URI is pinned to the
+      # exact Cognito callback URL. Flip USE_BACKEND to false to revert to the
+      # local-only demo.
+      - run: |
+          flutter build web --release \
+            --base-href=/recipe/ \
+            --dart-define=USE_BACKEND=true \
+            --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }} \
+            --dart-define=COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }} \
+            --dart-define=COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }} \
+            --dart-define=COGNITO_REGION=${{ vars.COGNITO_REGION }} \
+            --dart-define=OAUTH_REDIRECT_URI=https://alexdalgleishmorel.github.io/recipe/
       # SPA fallback: GitHub Pages serves 404.html for unknown paths.
       - run: cp build/web/index.html build/web/404.html
       - uses: actions/upload-pages-artifact@v3
