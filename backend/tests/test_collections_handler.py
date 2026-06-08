@@ -12,11 +12,11 @@ import sys
 
 import pytest
 
-# The collections function module file is named collections.py, which collides with the Python stdlib
-# `collections` package (already cached in sys.modules by pytest/moto), so a bare `import collections`
-# would resolve to the stdlib rather than our handler. Load it from its path under a distinct module
-# name instead. The `common` + `data_access` layers are on sys.path via conftest's backend/layers
-# insert; the function dir is added so the handler's `from common ...`/`from data_access ...` resolve.
+# The handler module is named collections_api.py (deliberately NOT collections.py, which would shadow
+# the Python stdlib `collections` package at import time). We still load it from its path for symmetry
+# with the other handler tests. The `common` + `data_access` layers are on sys.path via conftest's
+# backend/layers insert; the function dir is added so the handler's `from common ...`/`from
+# data_access ...` resolve.
 _FN_DIR = os.path.join(os.path.dirname(__file__), "..", "functions", "collections")
 sys.path.insert(0, _FN_DIR)
 
@@ -25,9 +25,9 @@ USER_B = "user-bbb"
 
 
 def _load_collections_module():
-    """Load functions/collections/collections.py as `collections_handler` (avoids the stdlib clash)."""
+    """Load functions/collections/collections_api.py as `collections_api`."""
     spec = importlib.util.spec_from_file_location(
-        "collections_handler", os.path.join(_FN_DIR, "collections.py")
+        "collections_api", os.path.join(_FN_DIR, "collections_api.py")
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

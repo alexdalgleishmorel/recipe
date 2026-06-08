@@ -12,8 +12,11 @@
 
 locals {
   # Logical function name -> handler entrypoint, merged into local.handlers (main.tf).
+  # Handler module is named collections_api (NOT collections) so it can't shadow the Python stdlib
+  # `collections` package — the runtime imports stdlib collections during init, so a module literally
+  # named `collections` would never resolve as the handler. The logical name stays `collections`.
   collections_handlers = {
-    collections = "collections.handler"
+    collections = "collections_api.handler"
   }
 
   # Logical route name -> { route key, backing handler, auth flag }, merged into local.routes.
