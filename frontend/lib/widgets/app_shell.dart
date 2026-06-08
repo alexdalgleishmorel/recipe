@@ -4,6 +4,7 @@ import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../models/user.dart';
+import '../screens/admin_users_screen.dart';
 import '../screens/browse_screen.dart';
 import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
@@ -26,6 +27,7 @@ class AppShell extends StatefulWidget {
     required this.recipesRepo,
     required this.plansRepo,
     required this.collectionsRepo,
+    required this.adminRepo,
     required this.sharingRepo,
     required this.importService,
     required this.isDark,
@@ -40,6 +42,7 @@ class AppShell extends StatefulWidget {
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
+  final AdminRepository adminRepo;
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
   final bool isDark;
@@ -108,6 +111,17 @@ class _AppShellState extends State<AppShell> {
     } else {
       setState(() => _tab = i);
     }
+  }
+
+  /// Push the admin Users screen onto the active tab's nested Navigator so it
+  /// keeps the shell chrome and the tab's back stack. Admin-gated by the
+  /// caller (the account UI only surfaces the entry when `user.isAdmin`).
+  void _openManageUsers() {
+    _navKeys[_tab].currentState?.push(
+      MaterialPageRoute(
+        builder: (_) => AdminUsersScreen(adminRepo: widget.adminRepo),
+      ),
+    );
   }
 
   Widget _tabRoot(int tab) {
@@ -232,6 +246,7 @@ class _AppShellState extends State<AppShell> {
                   user: widget.user,
                   onSignOut: widget.onSignOut,
                   onSetCanAiImport: widget.onSetCanAiImport,
+                  onManageUsers: _openManageUsers,
                 ),
                 Expanded(child: content),
               ],
@@ -248,6 +263,7 @@ class _AppShellState extends State<AppShell> {
                 onNav: _onNav,
                 user: widget.user,
                 onSignOut: widget.onSignOut,
+                onManageUsers: _openManageUsers,
               ),
             ],
           ),

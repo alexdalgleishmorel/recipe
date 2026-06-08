@@ -10,12 +10,16 @@ class BottomTabsBar extends StatelessWidget {
     required this.onNav,
     required this.user,
     required this.onSignOut,
+    required this.onManageUsers,
   });
 
   final int current;
   final ValueChanged<int> onNav;
   final User user;
   final Future<void> Function() onSignOut;
+
+  /// Admin-only: open the Users management screen (#66).
+  final VoidCallback onManageUsers;
 
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
@@ -76,6 +80,24 @@ class BottomTabsBar extends StatelessWidget {
                   onNav(4);
                 },
               ),
+              if (user.isAdmin) ...[
+                Divider(height: 1, color: rt.hair),
+                ListTile(
+                  leading: Icon(Icons.group_outlined, size: 20, color: rt.ink2),
+                  title: Text(
+                    'Manage users',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: rt.ink2,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    onManageUsers();
+                  },
+                ),
+              ],
               Divider(height: 1, color: rt.hair),
               ListTile(
                 leading: Icon(Icons.logout, size: 20, color: rt.ink2),

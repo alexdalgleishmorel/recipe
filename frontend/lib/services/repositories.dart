@@ -54,6 +54,21 @@ abstract class AuthRepository {
   Future<User> setCanAiImport(bool value);
 }
 
+/// Admin-only management of other accounts' entitlements. Backed by the
+/// admin endpoints (#65): `GET /admin/users` and `POST /admin/entitlements`.
+/// Both require an admin caller; non-admins get a 403.
+///
+/// Today's default-mode impl is `LocalAdminRepository`, a stub returning the
+/// demo user list. The live impl is `HttpAdminRepository`.
+abstract class AdminRepository {
+  /// All users with their entitlement flags.
+  Future<List<User>> listUsers();
+
+  /// Set [userId]'s AI-import entitlement to [canAiImport] and return the
+  /// updated user.
+  Future<User> setEntitlement(String userId, bool canAiImport);
+}
+
 /// AI-assisted recipe import. Parses an uploaded file (PDF / image / text)
 /// into a [Recipe] draft the user reviews before saving. This path is gated
 /// behind the `canAiImport` entitlement (#6).

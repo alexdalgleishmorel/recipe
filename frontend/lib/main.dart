@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'services/cognito_auth_repository.dart';
+import 'services/http_admin_repository.dart';
 import 'services/http_api_client.dart';
 import 'services/http_collections_repository.dart';
 import 'services/http_meal_plans_repository.dart';
 import 'services/http_recipe_import_service.dart';
 import 'services/http_recipes_repository.dart';
 import 'services/http_sharing_repository.dart';
+import 'services/local_admin_repository.dart';
 import 'services/local_auth_repository.dart';
 import 'services/local_collections_repository.dart';
 import 'services/local_meal_plans_repository.dart';
@@ -42,6 +44,7 @@ class _Repos {
     required this.collections,
     required this.settings,
     required this.auth,
+    required this.admin,
     required this.sharing,
     required this.importService,
   });
@@ -51,6 +54,7 @@ class _Repos {
   final CollectionsRepository collections;
   final SettingsRepository settings;
   final AuthRepository auth;
+  final AdminRepository admin;
   final SharingRepository sharing;
   final RecipeImportService importService;
 }
@@ -77,6 +81,7 @@ _Repos _buildRepos() {
       collections: collections,
       settings: settings,
       auth: auth,
+      admin: HttpAdminRepository(api),
       sharing: sharing,
       importService: importService,
     );
@@ -93,6 +98,7 @@ _Repos _buildRepos() {
     collections: collections,
     settings: settings,
     auth: LocalAuthRepository(),
+    admin: LocalAdminRepository(),
     sharing: LocalSharingRepository(
       recipesRepo: recipes,
       collectionsRepo: collections,
@@ -109,6 +115,7 @@ void main() {
     collectionsRepo: repos.collections,
     settingsRepo: repos.settings,
     authRepo: repos.auth,
+    adminRepo: repos.admin,
     sharingRepo: repos.sharing,
     importService: repos.importService,
   ));
@@ -122,6 +129,7 @@ class RecipesApp extends StatefulWidget {
     required this.collectionsRepo,
     required this.settingsRepo,
     required this.authRepo,
+    required this.adminRepo,
     required this.sharingRepo,
     required this.importService,
   });
@@ -131,6 +139,7 @@ class RecipesApp extends StatefulWidget {
   final CollectionsRepository collectionsRepo;
   final SettingsRepository settingsRepo;
   final AuthRepository authRepo;
+  final AdminRepository adminRepo;
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
 
@@ -171,6 +180,7 @@ class _RecipesAppState extends State<RecipesApp> {
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
         collectionsRepo: widget.collectionsRepo,
+        adminRepo: widget.adminRepo,
         sharingRepo: widget.sharingRepo,
         importService: widget.importService,
         isDark: _dark,

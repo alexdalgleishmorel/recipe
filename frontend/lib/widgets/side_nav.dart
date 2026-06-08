@@ -14,6 +14,7 @@ class SideNav extends StatelessWidget {
     required this.user,
     required this.onSignOut,
     required this.onSetCanAiImport,
+    required this.onManageUsers,
   });
 
   final int current;
@@ -25,6 +26,9 @@ class SideNav extends StatelessWidget {
 
   /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
   final Future<void> Function(bool) onSetCanAiImport;
+
+  /// Admin-only: open the Users management screen (#66).
+  final VoidCallback onManageUsers;
 
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
@@ -75,6 +79,8 @@ class SideNav extends StatelessWidget {
                     onChanged: onSetCanAiImport,
                   ),
                   const SizedBox(height: 6),
+                  _ManageUsersRow(onTap: onManageUsers),
+                  const SizedBox(height: 6),
                 ],
                 ThemeToggle(isDark: isDark, onToggle: onToggleTheme),
                 const SizedBox(height: 6),
@@ -83,6 +89,47 @@ class SideNav extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Admin-only entry that opens the Users management screen (#66). Styled like
+/// `_AccountRow` — a quiet full-width row with a leading icon.
+class _ManageUsersRow extends StatelessWidget {
+  const _ManageUsersRow({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final rt = context.rt;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: RecipeRadius.fieldBR,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: RecipeRadius.fieldBR,
+        hoverColor: rt.paper2,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          child: Row(
+            children: [
+              Icon(Icons.group_outlined, size: 16, color: rt.ink2),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Manage users',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: rt.ink2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
