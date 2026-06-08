@@ -1,10 +1,20 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
+/// A file the user picked for AI import: its [filename] and raw [bytes].
+class PickedFile {
+  const PickedFile({required this.filename, required this.bytes});
+  final String filename;
+  final Uint8List bytes;
+}
+
 class Dropzone extends StatefulWidget {
   const Dropzone({super.key, required this.onFile});
-  final ValueChanged<String> onFile;
+  final ValueChanged<PickedFile> onFile;
 
   @override
   State<Dropzone> createState() => _DropzoneState();
@@ -12,6 +22,19 @@ class Dropzone extends StatefulWidget {
 
 class _DropzoneState extends State<Dropzone> {
   bool _hover = false;
+
+  Future<void> _pick() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'txt'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final picked = result.files.first;
+    final bytes = picked.bytes;
+    if (bytes == null) return;
+    widget.onFile(PickedFile(filename: picked.name, bytes: bytes));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +44,7 @@ class _DropzoneState extends State<Dropzone> {
       onExit: (_) => setState(() => _hover = false),
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => widget.onFile('mom_lasagna.pdf'),
+        onTap: _pick,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),

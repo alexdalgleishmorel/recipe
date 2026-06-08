@@ -16,6 +16,7 @@ class AuthGate extends StatefulWidget {
     required this.plansRepo,
     required this.collectionsRepo,
     required this.sharingRepo,
+    required this.importService,
     required this.isDark,
     required this.onToggleTheme,
   });
@@ -25,6 +26,7 @@ class AuthGate extends StatefulWidget {
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
   final SharingRepository sharingRepo;
+  final RecipeImportService importService;
   final bool isDark;
   final VoidCallback onToggleTheme;
 
@@ -59,6 +61,12 @@ class _AuthGateState extends State<AuthGate> {
     setState(() => _user = null);
   }
 
+  Future<void> _setCanAiImport(bool value) async {
+    final updated = await widget.authRepo.setCanAiImport(value);
+    if (!mounted) return;
+    setState(() => _user = updated);
+  }
+
   @override
   Widget build(BuildContext context) {
     final rt = context.rt;
@@ -89,9 +97,11 @@ class _AuthGateState extends State<AuthGate> {
       plansRepo: widget.plansRepo,
       collectionsRepo: widget.collectionsRepo,
       sharingRepo: widget.sharingRepo,
+      importService: widget.importService,
       isDark: widget.isDark,
       onToggleTheme: widget.onToggleTheme,
       onSignOut: _signOut,
+      onSetCanAiImport: _setCanAiImport,
     );
   }
 }

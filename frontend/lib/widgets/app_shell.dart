@@ -27,9 +27,11 @@ class AppShell extends StatefulWidget {
     required this.plansRepo,
     required this.collectionsRepo,
     required this.sharingRepo,
+    required this.importService,
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
+    required this.onSetCanAiImport,
   });
 
   /// The signed-in user. Later issues read `user.isAdmin` (#5 sharing) and
@@ -39,9 +41,14 @@ class AppShell extends StatefulWidget {
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
   final SharingRepository sharingRepo;
+  final RecipeImportService importService;
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
+
+  /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
+  /// Local approximation of the admin endpoint (#20).
+  final Future<void> Function(bool) onSetCanAiImport;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -118,7 +125,9 @@ class _AppShellState extends State<AppShell> {
     }
     if (tab == 1) {
       return UploadScreen(
+        user: widget.user,
         recipesRepo: widget.recipesRepo,
+        importService: widget.importService,
         onChanged: _refresh,
       );
     }
@@ -222,6 +231,7 @@ class _AppShellState extends State<AppShell> {
                   onToggleTheme: widget.onToggleTheme,
                   user: widget.user,
                   onSignOut: widget.onSignOut,
+                  onSetCanAiImport: widget.onSetCanAiImport,
                 ),
                 Expanded(child: content),
               ],
