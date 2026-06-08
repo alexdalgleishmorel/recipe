@@ -196,6 +196,22 @@ class CognitoAuthRepository implements AuthRepository {
     return updated;
   }
 
+  /// The current Cognito **id_token**, refreshing it first if expired. Returns
+  /// null when there is no stored session (or a needed refresh failed). Used by
+  /// the `Http*` repositories to authenticate API calls with the same token
+  /// this repository manages.
+  Future<String?> currentIdToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final idToken = prefs.getString(_kIdToken);
+    if (idToken == null) return null;
+    if (_isExpired(prefs)) {
+      final refreshed = await _refresh(prefs);
+      if (!refreshed) return null;
+      return prefs.getString(_kIdToken);
+    }
+    return idToken;
+  }
+
   // --- Internals ----------------------------------------------------------
 
   /// If the current URL carries `?code=`, validate state, exchange the code
