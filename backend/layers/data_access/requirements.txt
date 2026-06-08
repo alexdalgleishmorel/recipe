@@ -1,0 +1,2 @@
+# Shared data-access layer dependencies. boto3 is provided by the Lambda runtime; pin extras here as
+# the layer grows (#12).
