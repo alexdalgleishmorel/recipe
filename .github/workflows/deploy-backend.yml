@@ -1,0 +1,64 @@
+name: Deploy backend
+
+# Applies infra/shared to AWS via Terraform, using keyless GitHub OIDC (no static AWS keys).
+# State lives in the S3 backend created by infra/bootstrap; backend config + role ARN come from
+# repository variables (see docs/aws-oidc.md).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/shared/**'
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required to mint the OIDC token assumed by the deploy role
+  contents: read
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production   # OIDC subject repo:...:environment:production is trusted by the deploy role
+    defaults:
+      run:
+        working-directory: infra/shared
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build Lambda bundle
+        working-directory: backend
+        run: ./build.sh
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="region=us-east-1" \
+            -backend-config="key=shared/terraform.tfstate"
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve
+
+      - name: Output API base URL
+        run: terraform output -raw api_base_url || true
