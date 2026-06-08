@@ -193,13 +193,15 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       name: '${p.displayName} (copy)',
       nameExplicit: true,
     );
-    await widget.plansRepo.save(copy);
+    // Use the saved copy's id: the backend assigns its own id on create, so
+    // navigating with the pre-save (client) id would 404 ("not found").
+    final saved = await widget.plansRepo.save(copy);
     await widget.onChanged();
     if (!mounted) return;
     showToast(context, 'Duplicated as draft');
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => PlanDetailScreen(
-        planId: copy.id,
+        planId: saved.id,
         plansRepo: widget.plansRepo,
         recipesRepo: widget.recipesRepo,
         onChanged: widget.onChanged,
