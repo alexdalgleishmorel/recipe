@@ -16,6 +16,26 @@ String formatSlashDate(DateTime d) =>
 /// "Mon" for a 1..7 weekday (Monday=1).
 String formatWeekday(int weekday) => _dayShort[weekday - 1];
 
+/// Parse a "MM/DD" slash date (as stored on a plan's `dates`) back into a
+/// [DateTime], choosing whichever year — previous, current, or next — lands
+/// closest to [reference] (defaults to now). Plans persist only formatted
+/// strings, so this is a best-effort reconstruction used to seed the date
+/// picker when editing a plan's range.
+DateTime parseSlashDateNear(String slashDate, {DateTime? reference}) {
+  final now = reference ?? DateTime.now();
+  final parts = slashDate.split('/');
+  final month = int.tryParse(parts.isNotEmpty ? parts[0] : '') ?? now.month;
+  final day = int.tryParse(parts.length > 1 ? parts[1] : '') ?? now.day;
+  var best = DateTime(now.year, month, day);
+  for (final year in [now.year - 1, now.year + 1]) {
+    final candidate = DateTime(year, month, day);
+    if (candidate.difference(now).abs() < best.difference(now).abs()) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
 /// Build the days/dates parallel arrays for a date range, monday-first.
 ({List<String> days, List<String> dates, String start, String end}) expandRange(
   DateTime from,

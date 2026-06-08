@@ -5,6 +5,7 @@ import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 import '../utils/grocery_aggregator.dart';
 import '../utils/id_gen.dart';
 import '../widgets/buttons.dart';
@@ -12,6 +13,7 @@ import '../widgets/candidates_panel.dart';
 import '../widgets/grocery_section.dart';
 import '../widgets/meal_calendar.dart';
 import '../widgets/modals/confirm_modals.dart';
+import '../widgets/modals/edit_plan_dates_modal.dart';
 import '../widgets/modals/recipe_picker_modal.dart';
 import '../widgets/page_head.dart';
 import '../widgets/toast.dart';
@@ -143,6 +145,43 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     );
     if (result == null) return;
     await _save(p.copyWith(candidates: [...p.candidates, result.id]));
+  }
+
+  Future<void> _editDates() async {
+    final p = _plan!;
+    final picked = await openEditPlanDatesModal(context, plan: p);
+    if (picked == null) return;
+    final r = expandRange(picked.start, picked.end);
+    // Resize the grid to the new day count, preserving each assignment whose
+    // date stays in range. Rows for dropped dates are discarded; dates added to
+    // the range start empty. Meals (the grid's columns) are untouched.
+    final byDate = <String, List<String?>>{
+      for (var i = 0; i < p.dates.length && i < p.grid.length; i++)
+        p.dates[i]: p.grid[i],
+    };
+    final grid = [
+      for (final date in r.dates)
+        byDate[date] ?? List<String?>.filled(p.meals.length, null),
+    ];
+    setState(() {
+      // Day indices shifted, so stale collapse/grocery state no longer maps —
+      // reset grocery selection to every filled cell (the load-time default).
+      _collapsedDays.clear();
+      _grocerySel = {
+        for (var di = 0; di < grid.length; di++)
+          for (var mi = 0; mi < grid[di].length; mi++)
+            if (grid[di][mi] != null) '$di-$mi',
+      };
+    });
+    await _save(p.copyWith(
+      start: r.start,
+      end: r.end,
+      days: r.days,
+      dates: r.dates,
+      grid: grid,
+    ));
+    if (!mounted) return;
+    showToast(context, 'Dates updated');
   }
 
   Future<void> _finalize() async {
@@ -321,6 +360,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
               ]
             : [
+                Btn(label: 'Edit dates', icon: Icons.event_outlined, onPressed: _editDates),
                 Btn(label: 'Discard', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
                 Btn(label: 'Finalize', icon: Icons.check, variant: BtnVariant.accent, onPressed: _finalize),
               ],
