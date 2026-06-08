@@ -27,6 +27,7 @@ class SideNav extends StatelessWidget {
     (icon: Icons.upload_outlined, label: 'Upload'),
     (icon: Icons.folder_outlined, label: 'Collections'),
     (icon: Icons.calendar_today_outlined, label: 'Meal Plans'),
+    (icon: Icons.inbox_outlined, label: 'Shared with me'),
   ];
 
   @override

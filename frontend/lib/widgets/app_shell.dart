@@ -7,6 +7,7 @@ import '../models/user.dart';
 import '../screens/browse_screen.dart';
 import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
+import '../screens/shared_with_me_screen.dart';
 import '../screens/upload_screen.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
@@ -25,6 +26,7 @@ class AppShell extends StatefulWidget {
     required this.recipesRepo,
     required this.plansRepo,
     required this.collectionsRepo,
+    required this.sharingRepo,
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
@@ -36,6 +38,7 @@ class AppShell extends StatefulWidget {
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
+  final SharingRepository sharingRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
@@ -54,6 +57,7 @@ class _AppShellState extends State<AppShell> {
   String? _error;
 
   final _navKeys = [
+    GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
@@ -108,6 +112,7 @@ class _AppShellState extends State<AppShell> {
         plans: _plans,
         collectionsRepo: widget.collectionsRepo,
         collections: _collections,
+        sharingRepo: widget.sharingRepo,
         onChanged: _refresh,
       );
     }
@@ -125,14 +130,21 @@ class _AppShellState extends State<AppShell> {
         collectionsRepo: widget.collectionsRepo,
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
+        sharingRepo: widget.sharingRepo,
         onChanged: _refresh,
       );
     }
-    return PlansScreen(
-      plans: _plans,
-      recipes: _recipes,
-      plansRepo: widget.plansRepo,
-      recipesRepo: widget.recipesRepo,
+    if (tab == 3) {
+      return PlansScreen(
+        plans: _plans,
+        recipes: _recipes,
+        plansRepo: widget.plansRepo,
+        recipesRepo: widget.recipesRepo,
+        onChanged: _refresh,
+      );
+    }
+    return SharedWithMeScreen(
+      sharingRepo: widget.sharingRepo,
       onChanged: _refresh,
     );
   }
@@ -194,6 +206,7 @@ class _AppShellState extends State<AppShell> {
             _buildNavigator(1),
             _buildNavigator(2),
             _buildNavigator(3),
+            _buildNavigator(4),
           ],
         );
 

@@ -62,6 +62,22 @@ class BottomTabsBar extends StatelessWidget {
               ),
               Divider(height: 1, color: rt.hair),
               ListTile(
+                leading: Icon(Icons.inbox_outlined, size: 20, color: rt.ink2),
+                title: Text(
+                  'Shared with me',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: rt.ink2,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onNav(4);
+                },
+              ),
+              Divider(height: 1, color: rt.hair),
+              ListTile(
                 leading: Icon(Icons.logout, size: 20, color: rt.ink2),
                 title: Text(
                   'Sign out',

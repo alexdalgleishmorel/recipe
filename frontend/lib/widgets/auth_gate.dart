@@ -15,6 +15,7 @@ class AuthGate extends StatefulWidget {
     required this.recipesRepo,
     required this.plansRepo,
     required this.collectionsRepo,
+    required this.sharingRepo,
     required this.isDark,
     required this.onToggleTheme,
   });
@@ -23,6 +24,7 @@ class AuthGate extends StatefulWidget {
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
+  final SharingRepository sharingRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
 
@@ -86,6 +88,7 @@ class _AuthGateState extends State<AuthGate> {
       recipesRepo: widget.recipesRepo,
       plansRepo: widget.plansRepo,
       collectionsRepo: widget.collectionsRepo,
+      sharingRepo: widget.sharingRepo,
       isDark: widget.isDark,
       onToggleTheme: widget.onToggleTheme,
       onSignOut: _signOut,

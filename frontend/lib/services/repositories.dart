@@ -1,6 +1,8 @@
 import '../models/collection.dart';
+import '../models/incoming_share.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
+import '../models/share_item.dart';
 import '../models/user.dart';
 
 /// Storage abstraction for recipes. Today's only impl is `LocalRecipesRepository`
@@ -44,4 +46,30 @@ abstract class AuthRepository {
   Future<User> signInWithGoogle();
   Future<User> signInWithApple();
   Future<void> signOut();
+}
+
+/// Sharing of recipes / collections as editable COPIES (fork-on-claim). Two
+/// targeting modes: by recipient email, and by shareable link/token.
+///
+/// Real cross-user delivery is the backend's job (#24). Today's only impl is
+/// `LocalSharingRepository`, a single-device stub that records shares so the
+/// "Shared with me" flow is fully exercisable locally.
+abstract class SharingRepository {
+  /// Record a share targeted at [recipientEmail]. Delivery is the backend's
+  /// concern; the local stub drops it into the inbox so the demo round-trips.
+  Future<void> shareByEmail({
+    required String recipientEmail,
+    required ShareItem item,
+  });
+
+  /// Create a shareable link for [item] and return it. The link embeds a token
+  /// that a recipient would claim via [claim].
+  Future<String> createShareLink(ShareItem item);
+
+  /// Pending (and recently claimed) shares for the current user's inbox.
+  Future<List<IncomingShare>> listIncoming();
+
+  /// Fork the shared item into the current user's library with brand-new ids,
+  /// then mark the share claimed.
+  Future<void> claim(String shareId);
 }

@@ -5,6 +5,7 @@ import 'services/local_collections_repository.dart';
 import 'services/local_meal_plans_repository.dart';
 import 'services/local_recipes_repository.dart';
 import 'services/local_settings_repository.dart';
+import 'services/local_sharing_repository.dart';
 import 'services/repositories.dart';
 import 'theme/app_theme.dart';
 import 'widgets/auth_gate.dart';
@@ -17,6 +18,10 @@ void main() {
   final CollectionsRepository collectionsRepo = LocalCollectionsRepository();
   final SettingsRepository settingsRepo = LocalSettingsRepository();
   final AuthRepository authRepo = LocalAuthRepository();
+  final SharingRepository sharingRepo = LocalSharingRepository(
+    recipesRepo: recipesRepo,
+    collectionsRepo: collectionsRepo,
+  );
 
   runApp(RecipesApp(
     recipesRepo: recipesRepo,
@@ -24,6 +29,7 @@ void main() {
     collectionsRepo: collectionsRepo,
     settingsRepo: settingsRepo,
     authRepo: authRepo,
+    sharingRepo: sharingRepo,
   ));
 }
 
@@ -35,6 +41,7 @@ class RecipesApp extends StatefulWidget {
     required this.collectionsRepo,
     required this.settingsRepo,
     required this.authRepo,
+    required this.sharingRepo,
   });
 
   final RecipesRepository recipesRepo;
@@ -42,6 +49,7 @@ class RecipesApp extends StatefulWidget {
   final CollectionsRepository collectionsRepo;
   final SettingsRepository settingsRepo;
   final AuthRepository authRepo;
+  final SharingRepository sharingRepo;
 
   @override
   State<RecipesApp> createState() => _RecipesAppState();
@@ -80,6 +88,7 @@ class _RecipesAppState extends State<RecipesApp> {
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
         collectionsRepo: widget.collectionsRepo,
+        sharingRepo: widget.sharingRepo,
         isDark: _dark,
         onToggleTheme: _toggleTheme,
       ),
