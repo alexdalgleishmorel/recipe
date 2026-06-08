@@ -37,8 +37,11 @@ locals {
     import_recipe = "import_recipe.handler"
   }
 
-  # Logical route name -> { route key, backing handler, auth flag }, merged into local.routes.
+  # Logical route name -> { route key, backing handler, auth flag }, merged into local.routes. Both
+  # the import POST and the batch-status GET are served by the one import_recipe Lambda (it dispatches
+  # on method + the {id} path parameter), so no extra integration is needed.
   import_recipe_routes = {
-    recipes_import = { key = "POST /recipes/import", integration = "import_recipe", auth = true }
+    recipes_import       = { key = "POST /recipes/import", integration = "import_recipe", auth = true }
+    recipes_import_batch = { key = "GET /recipes/import/batch/{id}", integration = "import_recipe", auth = true }
   }
 }
