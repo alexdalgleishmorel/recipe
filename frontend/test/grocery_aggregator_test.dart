@@ -84,4 +84,26 @@ void main() {
       expect(cats[GroceryCategory.pantry]!.length, 1);
     });
   });
+
+  group('formatGroceryList', () {
+    test('groups under category headers with quantities', () {
+      final r = recipeWith(const [
+        Ingredient(amount: '1', unit: 'lb', name: 'chicken thighs'),
+        Ingredient(amount: '2', unit: 'cups', name: 'spinach'),
+      ]);
+      final text = formatGroceryList(aggregateIngredients([r]));
+      expect(text, contains('PROTEIN:'));
+      expect(text, contains('- 1 lb chicken thighs'));
+      expect(text, contains('PRODUCE:'));
+      expect(text, contains('- 2 cups spinach'));
+    });
+    test('omits quantity when amount and unit are absent', () {
+      final r = recipeWith(const [Ingredient(amount: '', unit: '', name: 'salt')]);
+      final text = formatGroceryList(aggregateIngredients([r]));
+      expect(text, contains('- salt'));
+    });
+    test('empty input yields empty string', () {
+      expect(formatGroceryList(aggregateIngredients(const [])), '');
+    });
+  });
 }

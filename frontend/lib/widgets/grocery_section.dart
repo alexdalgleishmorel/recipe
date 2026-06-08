@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/grocery_item.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
 import '../utils/grocery_aggregator.dart';
+import 'toast.dart';
 
 /// The grocery section under a plan: collapsible meal-picker grid + the
 /// aggregated, categorized ingredient list with checkboxes.
@@ -67,6 +69,12 @@ class _GrocerySectionState extends State<GrocerySection> {
           Text('$totalItems items · ${selected.length}/${filled.length} meals',
               style: RecipeTypography.mono(size: 11.5, color: rt.ink3, letterSpacing: 0.46)),
           const Spacer(),
+          if (totalItems > 0)
+            TextButton.icon(
+              onPressed: () => _copyList(cats),
+              icon: Icon(Icons.copy_outlined, size: 16, color: rt.ink2),
+              label: Text('Copy list', style: TextStyle(color: rt.ink2, fontSize: 13)),
+            ),
           if (filled.isNotEmpty)
             TextButton.icon(
               onPressed: () => setState(() => _pickerCollapsed = !_pickerCollapsed),
@@ -240,6 +248,14 @@ class _GrocerySectionState extends State<GrocerySection> {
   }
 
   String _keyFor(GroceryItem it) => '${it.name}|${it.unit}';
+
+  Future<void> _copyList(Map<GroceryCategory, List<GroceryItem>> cats) async {
+    final text = formatGroceryList(cats);
+    if (text.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    showToast(context, 'Grocery list copied to clipboard');
+  }
 }
 
 class _DayHeader extends StatelessWidget {

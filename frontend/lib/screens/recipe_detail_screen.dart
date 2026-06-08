@@ -16,6 +16,7 @@ import '../widgets/modals/add_to_plan_modal.dart';
 import '../widgets/modals/delete_recipe_modal.dart';
 import '../widgets/modals/share_modal.dart';
 import '../widgets/page_head.dart';
+import '../widgets/recipe_image.dart';
 import '../widgets/tag_chip.dart';
 import '../widgets/toast.dart';
 
@@ -239,9 +240,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               borderRadius: RecipeRadius.cardBR,
               color: rt.paper2,
             ),
-            child: r.image.isEmpty
-                ? null
-                : Image.network(r.image, fit: BoxFit.cover, errorBuilder: (_, _, _) => const SizedBox.shrink()),
+            child: RecipeImage(url: r.image, iconSize: 44),
           ),
         ),
       );

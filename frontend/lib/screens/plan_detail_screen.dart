@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
+import '../utils/grocery_aggregator.dart';
 import '../utils/id_gen.dart';
 import '../widgets/buttons.dart';
 import '../widgets/candidates_panel.dart';
@@ -146,8 +148,30 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     final ok = await openFinalizePlanModal(context, p);
     if (!ok) return;
     await _save(p.copyWith(status: PlanStatus.finalized));
+    // Finalizing produces a usable downstream: copy the aggregated grocery
+    // list (from the currently selected meals) to the clipboard.
+    final copied = await _copyGroceryList();
     if (!mounted) return;
-    showToast(context, 'Meal plan finalized');
+    showToast(context, copied ? 'Finalized — grocery list copied' : 'Meal plan finalized');
+  }
+
+  /// Aggregate the selected meals' ingredients and copy the list to the
+  /// clipboard. Returns whether anything was copied.
+  Future<bool> _copyGroceryList() async {
+    final p = _plan!;
+    final ids = <String>[];
+    for (var di = 0; di < p.grid.length; di++) {
+      for (var mi = 0; mi < p.grid[di].length; mi++) {
+        if (p.grid[di][mi] != null && _grocerySel.contains('$di-$mi')) {
+          ids.add(p.grid[di][mi]!);
+        }
+      }
+    }
+    final recipes = ids.map((id) => _byId[id]).whereType<Recipe>().toList();
+    final text = formatGroceryList(aggregateIngredients(recipes));
+    if (text.isEmpty) return false;
+    await Clipboard.setData(ClipboardData(text: text));
+    return true;
   }
 
   Future<void> _delete() async {
