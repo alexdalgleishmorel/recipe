@@ -20,7 +20,11 @@ locals {
   }
 
   # Logical route name -> { route key, backing handler, auth flag }, merged into local.routes.
+  # Both routes hit the one `admin` handler, which dispatches on method+path and gates every route on
+  # the caller's stored isAdmin (403 otherwise).
   admin_routes = {
     admin_entitlements = { key = "POST /admin/entitlements", integration = "admin", auth = true }
+    # GET /admin/users lists all users for the entitlement UI (#65); Scan grant added in main.tf.
+    admin_users = { key = "GET /admin/users", integration = "admin", auth = true }
   }
 }

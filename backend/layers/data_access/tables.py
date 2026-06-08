@@ -127,6 +127,24 @@ class EntityTable:
             kwargs["ExclusiveStartKey"] = start
         return [_read_doc(i) for i in items]
 
+    def list_all(self) -> list[dict]:
+        """Return every item in the table (a full Scan across all partitions), as model JSON dicts.
+
+        Cross-user op (no ``user_id`` scope) — admin-only by construction; the exec role needs
+        ``dynamodb:Scan`` on the table. Pages through ``LastEvaluatedKey`` like ``list``.
+        """
+        items: list[dict] = []
+        kwargs: dict[str, Any] = {}
+        table = _table(self.name)
+        while True:
+            resp = table.scan(**kwargs)
+            items.extend(resp.get("Items", []))
+            start = resp.get("LastEvaluatedKey")
+            if not start:
+                break
+            kwargs["ExclusiveStartKey"] = start
+        return [_read_doc(i) for i in items]
+
     def delete(self, user_id: str, entity_id: str) -> None:
         """Delete one item by ``(user_id, entity_id)``. Idempotent (no error if absent)."""
         _table(self.name).delete_item(Key={PK: user_id, SK: str(entity_id)})

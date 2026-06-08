@@ -50,27 +50,36 @@ resource "aws_iam_role_policy" "lambda_dynamodb" {
   role = aws_iam_role.lambda.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "dynamodb:GetItem",
-        "dynamodb:PutItem",
-        "dynamodb:DeleteItem",
-        "dynamodb:UpdateItem",
-        "dynamodb:Query",
-        "dynamodb:BatchGetItem",
-        "dynamodb:BatchWriteItem",
-      ]
-      Resource = flatten([
-        for t in [
-          aws_dynamodb_table.recipes,
-          aws_dynamodb_table.meal_plans,
-          aws_dynamodb_table.collections,
-          aws_dynamodb_table.users,
-          aws_dynamodb_table.shares,
-        ] : [t.arn, "${t.arn}/index/*"]
-      ])
-    }]
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:Query",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem",
+        ]
+        Resource = flatten([
+          for t in [
+            aws_dynamodb_table.recipes,
+            aws_dynamodb_table.meal_plans,
+            aws_dynamodb_table.collections,
+            aws_dynamodb_table.users,
+            aws_dynamodb_table.shares,
+          ] : [t.arn, "${t.arn}/index/*"]
+        ])
+      },
+      # Scan is only needed to list all users for the admin UI (#65, GET /admin/users) — grant it on
+      # the users table alone, not the per-user partitioned entity tables.
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:Scan"]
+        Resource = aws_dynamodb_table.users.arn
+      },
+    ]
   })
 }
 
