@@ -7,6 +7,6 @@ layer never touches DynamoDB.
 """
 
 from . import api
-from .auth import get_user_id
+from .auth import get_user_email, get_user_id, jwt_name
 
-__all__ = ["api", "get_user_id"]
+__all__ = ["api", "get_user_id", "get_user_email", "jwt_name"]

@@ -154,8 +154,11 @@ class GsiLookupTable(EntityTable):
     def _to_item(self, user_id: str, model: dict) -> dict:
         item = super()._to_item(user_id, model)
         value = model.get(self.index_key)
-        if value is not None:
-            # Promote the GSI key (email/token) to a top-level attribute so the index indexes it.
+        # Promote the GSI key (email/token) to a top-level attribute so the index indexes it. Skip
+        # empty/missing values: DynamoDB rejects an empty string as an indexed key attribute, and an
+        # item with no value for the key is simply absent from the GSI (e.g. a profile created before
+        # an email is known — #13's lazy-create when no email claim/header is present).
+        if value:
             item[self.index_key] = value
         return item
 
