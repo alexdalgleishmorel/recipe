@@ -85,6 +85,8 @@ locals {
     SHARES_TABLE      = aws_dynamodb_table.shares.name
     # Email granted admin entitlements when its profile is lazy-created (#13, me handler).
     ADMIN_EMAIL = var.admin_email
+    # Private S3 bucket the uploads handler mints presigned PUT URLs against (#17, uploads handler).
+    UPLOADS_BUCKET = aws_s3_bucket.uploads.bucket
   }
 
   # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue by
@@ -97,6 +99,7 @@ locals {
     local.plans_handlers,
     local.collections_handlers,
     local.me_handlers,
+    local.uploads_handlers,
   )
 }
 
@@ -159,6 +162,7 @@ locals {
     local.plans_routes,
     local.collections_routes,
     local.me_routes,
+    local.uploads_routes,
   )
 }
 

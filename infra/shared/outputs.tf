@@ -8,6 +8,11 @@ output "lambda_role_arn" {
   value       = aws_iam_role.lambda.arn
 }
 
+output "uploads_bucket" {
+  description = "Private S3 bucket holding recipe images; the uploads handler presigns PUTs to it (#17)."
+  value       = aws_s3_bucket.uploads.bucket
+}
+
 # --- DynamoDB table names (#12) — consumed by the CRUD Lambdas via lambda_env (RECIPES_TABLE, ...) --
 output "dynamodb_tables" {
   description = "DynamoDB table names by entity, keyed for the data-access layer / future CRUD Lambdas."
