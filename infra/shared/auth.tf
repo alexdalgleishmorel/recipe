@@ -87,11 +87,13 @@ resource "aws_cognito_user_pool_client" "spa" {
   supported_identity_providers         = ["Google"]
 
   callback_urls = [
+    "https://alexdalgleishmorel.github.io/recipes/",
     "https://alexdalgleishmorel.github.io/recipe/",
     "http://localhost:8080/",
     "http://localhost:3000/",
   ]
   logout_urls = [
+    "https://alexdalgleishmorel.github.io/recipes/",
     "https://alexdalgleishmorel.github.io/recipe/",
     "http://localhost:8080/",
     "http://localhost:3000/",

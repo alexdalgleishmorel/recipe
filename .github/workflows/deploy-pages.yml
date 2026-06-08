@@ -41,13 +41,13 @@ jobs:
       # local-only demo.
       - run: |
           flutter build web --release \
-            --base-href=/recipe/ \
+            --base-href=/recipes/ \
             --dart-define=USE_BACKEND=true \
             --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }} \
             --dart-define=COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }} \
             --dart-define=COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }} \
             --dart-define=COGNITO_REGION=${{ vars.COGNITO_REGION }} \
-            --dart-define=OAUTH_REDIRECT_URI=https://alexdalgleishmorel.github.io/recipe/
+            --dart-define=OAUTH_REDIRECT_URI=https://alexdalgleishmorel.github.io/recipes/
       # Rasterize the brand SVG into the PWA/favicon PNGs (the source of truth is
       # web/favicon.svg; PNGs are generated here so we don't commit binaries).
       - name: Rasterize brand icons
