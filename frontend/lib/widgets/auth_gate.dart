@@ -37,6 +37,7 @@ class AuthGate extends StatefulWidget {
 class _AuthGateState extends State<AuthGate> {
   User? _user;
   bool _loading = true;
+  Object? _error;
 
   @override
   void initState() {
@@ -45,12 +46,26 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _resolve() async {
-    final user = await widget.authRepo.currentUser();
-    if (!mounted) return;
     setState(() {
-      _user = user;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    try {
+      final user = await widget.authRepo.currentUser();
+      if (!mounted) return;
+      setState(() {
+        _user = user;
+        _loading = false;
+      });
+    } catch (e) {
+      // Never leave the gate stuck on a spinner: surface the failure so it can
+      // be retried (and so the cause is visible) instead of hanging forever.
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   void _onSignedIn(User user) => setState(() => _user = user);
@@ -78,6 +93,44 @@ class _AuthGateState extends State<AuthGate> {
             width: 22,
             height: 22,
             child: CircularProgressIndicator(strokeWidth: 2, color: rt.accent),
+          ),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: rt.paper,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Sign-in failed',
+                    style: RecipeTypography.serif(
+                      size: 24,
+                      weight: FontWeight.w500,
+                      color: rt.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '$_error',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: rt.ink3, height: 1.4),
+                  ),
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: _resolve,
+                    child: const Text('Try again'),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       );
