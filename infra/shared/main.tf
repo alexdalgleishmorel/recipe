@@ -124,9 +124,11 @@ resource "aws_apigatewayv2_api" "http" {
   name          = "recipe-api"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["*"]
+    allow_origins = var.cors_allowed_origins
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_headers = ["content-type", "authorization"]
+    # x-user-id is the dev-identity header (until the Cognito JWT authorizer in #11);
+    # authorization carries the bearer JWT afterward.
+    allow_headers = ["content-type", "authorization", "x-user-id"]
   }
 }
 
