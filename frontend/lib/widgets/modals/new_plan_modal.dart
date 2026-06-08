@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/date_format.dart';
 import '../../utils/id_gen.dart';
 import '../buttons.dart';
+import '../date_range_field.dart';
 import '../modal_shell.dart';
 import '../toast.dart';
 
@@ -32,26 +33,6 @@ class _NewPlanFormState extends State<_NewPlanForm> {
     super.initState();
     _start = DateTime.now();
     _end = _start.add(const Duration(days: 6));
-  }
-
-  Future<void> _pick({required bool start}) async {
-    final initial = start ? _start : _end;
-    final result = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime.now().subtract(const Duration(days: 90)),
-      lastDate: DateTime.now().add(const Duration(days: 730)),
-    );
-    if (result == null) return;
-    setState(() {
-      if (start) {
-        _start = result;
-        if (_end.isBefore(_start)) _end = _start.add(const Duration(days: 6));
-      } else {
-        _end = result;
-        if (_end.isBefore(_start)) _start = _end.subtract(const Duration(days: 6));
-      }
-    });
   }
 
   void _submit() {
@@ -104,11 +85,14 @@ class _NewPlanFormState extends State<_NewPlanForm> {
         label('Plan name (optional)'),
         TextField(controller: _name, decoration: dec("e.g. Thanksgiving Prep Week")),
         label('Date range'),
-        Row(children: [
-          Expanded(child: _DateBox(label: formatMonthDay(_start), onTap: () => _pick(start: true))),
-          const SizedBox(width: 10),
-          Expanded(child: _DateBox(label: formatMonthDay(_end), onTap: () => _pick(start: false))),
-        ]),
+        DateRangeField(
+          start: _start,
+          end: _end,
+          onChanged: (s, e) => setState(() {
+            _start = s;
+            _end = e;
+          }),
+        ),
         label('Meals to include'),
         Column(children: [
           for (final m in const ['Breakfast', 'Lunch', 'Dinner'])
@@ -125,33 +109,6 @@ class _NewPlanFormState extends State<_NewPlanForm> {
             ),
         ]),
       ]),
-    );
-  }
-}
-
-class _DateBox extends StatelessWidget {
-  const _DateBox({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final rt = context.rt;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: RecipeRadius.fieldBR,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: rt.paper,
-          border: Border.all(color: rt.hair2),
-          borderRadius: RecipeRadius.fieldBR,
-        ),
-        child: Row(children: [
-          Icon(Icons.calendar_today_outlined, size: 14, color: rt.ink3),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: rt.ink, fontSize: 14)),
-        ]),
-      ),
     );
   }
 }
