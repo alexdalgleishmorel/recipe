@@ -6,7 +6,9 @@ never go into GitHub. Defined as Terraform in [`infra/bootstrap`](../infra/boots
 
 ## What it creates
 
-- A **GitHub OIDC identity provider** (`token.actions.githubusercontent.com`).
+- A **GitHub OIDC identity provider** (`token.actions.githubusercontent.com`) — account-global, so it
+  is *referenced* when it already exists (e.g. another project in the account created it) and only
+  created when `create_oidc_provider = true` (default `false`).
 - Two IAM roles, both trusting **only this repo** via the OIDC provider:
   - `recipe-gh-actions-plan` — read-only, assumable by any branch run in the repo; used by PR
     build / `terraform plan`.

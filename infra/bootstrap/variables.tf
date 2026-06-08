@@ -28,6 +28,12 @@ variable "lock_table_name" {
   default     = "recipe-tflock"
 }
 
+variable "create_oidc_provider" {
+  description = "Create the account-global GitHub OIDC provider. Leave false when another stack in this AWS account (e.g. composable-site-platform) already created token.actions.githubusercontent.com; the existing provider is referenced via a data source instead."
+  type        = bool
+  default     = false
+}
+
 variable "deploy_environment" {
   description = "GitHub Actions environment that gates the deploy role (extra scope on the trust policy)."
   type        = string
