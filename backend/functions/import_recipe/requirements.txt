@@ -1,0 +1,4 @@
+# Runtime dependencies for the AI recipe-import handler (#19). The official Anthropic SDK is the only
+# third-party dep build.sh vendors into the bundle; boto3 (Secrets Manager + S3) is provided by the
+# Lambda runtime, and the common + data_access layers are bundled by build.sh.
+anthropic>=0.40

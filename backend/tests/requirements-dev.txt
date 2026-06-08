@@ -1,6 +1,8 @@
 # Backend test dependencies (not vendored into the Lambda bundle — build.sh only vendors the
 # functions'/layers' own requirements.txt). boto3 is provided by the Lambda runtime in prod but is a
-# direct dependency of the data-access layer here; moto mocks DynamoDB so tests need no real AWS.
+# direct dependency of the data-access layer here; moto mocks DynamoDB (CRUD), S3 (the import {key}
+# path), and Secrets Manager (the Anthropic key #19 reads) so tests need no real AWS. The Anthropic
+# SDK call itself is monkeypatched in the import-recipe test, so `anthropic` is not a test dependency.
 boto3>=1.34
-moto[dynamodb]>=5.0
+moto[dynamodb,s3,secretsmanager]>=5.0
 pytest>=8.0
