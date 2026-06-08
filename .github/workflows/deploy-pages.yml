@@ -48,6 +48,16 @@ jobs:
             --dart-define=COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }} \
             --dart-define=COGNITO_REGION=${{ vars.COGNITO_REGION }} \
             --dart-define=OAUTH_REDIRECT_URI=https://alexdalgleishmorel.github.io/recipe/
+      # Rasterize the brand SVG into the PWA/favicon PNGs (the source of truth is
+      # web/favicon.svg; PNGs are generated here so we don't commit binaries).
+      - name: Rasterize brand icons
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq librsvg2-bin
+          rsvg-convert -w 32  -h 32  web/favicon.svg -o build/web/favicon.png
+          rsvg-convert -w 192 -h 192 web/favicon.svg -o build/web/icons/Icon-192.png
+          rsvg-convert -w 512 -h 512 web/favicon.svg -o build/web/icons/Icon-512.png
+          rsvg-convert -w 192 -h 192 web/favicon.svg -o build/web/icons/Icon-maskable-192.png
+          rsvg-convert -w 512 -h 512 web/favicon.svg -o build/web/icons/Icon-maskable-512.png
       # SPA fallback: GitHub Pages serves 404.html for unknown paths.
       - run: cp build/web/index.html build/web/404.html
       - uses: actions/upload-pages-artifact@v3
