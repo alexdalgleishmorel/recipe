@@ -8,3 +8,9 @@ variable "lambda_dist_dir" {
   type        = string
   default     = "../../backend/dist"
 }
+
+variable "cors_allowed_origins" {
+  description = "Origins allowed to call the API (browser CORS). Defaults to the GitHub Pages site."
+  type        = list(string)
+  default     = ["https://alexdalgleishmorel.github.io"]
+}
