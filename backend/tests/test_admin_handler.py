@@ -34,14 +34,22 @@ def _profile(user_id, email, *, is_admin=False, can_ai_import=False):
 
 
 def _event(user_id, body=None):
-    """Build a synthetic API Gateway v2 (payload 2.0) POST event for the admin handler."""
+    """Build a synthetic API Gateway v2 (payload 2.0) POST /admin/entitlements event."""
     event = {
-        "requestContext": {"http": {"method": "POST"}},
+        "requestContext": {"http": {"method": "POST", "path": "/admin/entitlements"}},
         "headers": {"x-user-id": user_id},
     }
     if body is not None:
         event["body"] = json.dumps(body)
     return event
+
+
+def _list_event(user_id):
+    """Build a synthetic API Gateway v2 (payload 2.0) GET /admin/users event."""
+    return {
+        "requestContext": {"http": {"method": "GET", "path": "/admin/users"}},
+        "headers": {"x-user-id": user_id},
+    }
 
 
 @pytest.fixture
@@ -136,14 +144,67 @@ def test_no_body_is_400(admin):
     assert resp["statusCode"] == 400
 
 
+# --- GET /admin/users (list users, #65) -----------------------------------------------------------
+def test_admin_lists_all_users(admin):
+    resp = admin.handler(_list_event(ADMIN_ID), None)
+    assert resp["statusCode"] == 200
+    out = json.loads(resp["body"])
+    assert isinstance(out, list)
+    by_id = {u["id"]: u for u in out}
+    # All three seeded users are present, each in the exact contract shape.
+    assert set(by_id) == {ADMIN_ID, TARGET_ID, NON_ADMIN_ID}
+    for user in out:
+        assert set(user) == {"id", "email", "displayName", "canAiImport", "isAdmin"}
+        assert isinstance(user["canAiImport"], bool)
+        assert isinstance(user["isAdmin"], bool)
+    assert by_id[ADMIN_ID]["isAdmin"] is True
+    assert by_id[ADMIN_ID]["email"] == ADMIN_EMAIL
+    assert by_id[TARGET_ID]["isAdmin"] is False
+    assert by_id[NON_ADMIN_ID]["isAdmin"] is False
+
+
+def test_list_users_non_admin_is_403(admin):
+    resp = admin.handler(_list_event(NON_ADMIN_ID), None)
+    assert resp["statusCode"] == 403
+
+
+def test_list_users_unknown_caller_is_403(admin):
+    resp = admin.handler(_list_event("ghost"), None)
+    assert resp["statusCode"] == 403
+
+
+def test_list_users_missing_identity_is_401(admin):
+    event = {"requestContext": {"http": {"method": "GET", "path": "/admin/users"}}, "headers": {}}
+    resp = admin.handler(event, None)
+    assert resp["statusCode"] == 401
+
+
+def test_list_reflects_entitlement_changes(admin):
+    """A grant via POST /admin/entitlements is visible on the next GET /admin/users."""
+    before = {u["id"]: u for u in json.loads(admin.handler(_list_event(ADMIN_ID), None)["body"])}
+    assert before[TARGET_ID]["canAiImport"] is False
+
+    grant = admin.handler(_event(ADMIN_ID, {"userId": TARGET_ID, "canAiImport": True}), None)
+    assert grant["statusCode"] == 200
+
+    after = {u["id"]: u for u in json.loads(admin.handler(_list_event(ADMIN_ID), None)["body"])}
+    assert after[TARGET_ID]["canAiImport"] is True
+
+
 # --- routing --------------------------------------------------------------------------------------
-def test_unsupported_method_is_405(admin):
-    event = {"requestContext": {"http": {"method": "GET"}}, "headers": {"x-user-id": ADMIN_ID}}
+def test_unsupported_route_is_405(admin):
+    event = {
+        "requestContext": {"http": {"method": "DELETE", "path": "/admin/users"}},
+        "headers": {"x-user-id": ADMIN_ID},
+    }
     resp = admin.handler(event, None)
     assert resp["statusCode"] == 405
 
 
 def test_missing_identity_is_401(admin):
-    event = {"requestContext": {"http": {"method": "POST"}}, "headers": {}}
+    event = {
+        "requestContext": {"http": {"method": "POST", "path": "/admin/entitlements"}},
+        "headers": {},
+    }
     resp = admin.handler(event, None)
     assert resp["statusCode"] == 401
