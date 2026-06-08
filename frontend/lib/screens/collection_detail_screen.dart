@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
+import '../models/share_item.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
 import '../widgets/buttons.dart';
 import '../widgets/modals/collection_form_modal.dart';
 import '../widgets/modals/delete_collection_modal.dart';
 import '../widgets/modals/recipe_picker_modal.dart';
+import '../widgets/modals/share_modal.dart';
 import '../widgets/page_head.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/toast.dart';
@@ -24,6 +26,7 @@ class CollectionDetailScreen extends StatefulWidget {
     required this.recipes,
     required this.plans,
     required this.onChanged,
+    this.sharingRepo,
   });
 
   final String collectionId;
@@ -33,6 +36,7 @@ class CollectionDetailScreen extends StatefulWidget {
   final List<Recipe> recipes;
   final List<MealPlan> plans;
   final Future<void> Function() onChanged;
+  final SharingRepository? sharingRepo;
 
   @override
   State<CollectionDetailScreen> createState() => _CollectionDetailScreenState();
@@ -115,6 +119,17 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     showToast(context, 'Removed ${r.title}');
   }
 
+  Future<void> _share() async {
+    final c = _collection;
+    final repo = widget.sharingRepo;
+    if (c == null || repo == null) return;
+    await openShareModal(
+      context,
+      item: ShareItem(type: ShareItemType.collection, id: c.id, title: c.name),
+      sharingRepo: repo,
+    );
+  }
+
   void _openRecipe(Recipe r) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => RecipeDetailScreen(
@@ -124,6 +139,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         plans: widget.plans,
         collectionsRepo: widget.collectionsRepo,
         collections: _collection == null ? const [] : [_collection!],
+        sharingRepo: widget.sharingRepo,
         onChanged: widget.onChanged,
       ),
     ));
@@ -161,6 +177,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           Wrap(spacing: 8, runSpacing: 8, children: [
             Btn(label: 'Add recipe', icon: Icons.add, variant: BtnVariant.primary, onPressed: _addRecipe),
             Btn(label: 'Rename', icon: Icons.edit_outlined, onPressed: _rename),
+            if (widget.sharingRepo != null)
+              Btn(label: 'Share', icon: Icons.ios_share, onPressed: _share),
             Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
           ]),
           const SizedBox(height: 28),

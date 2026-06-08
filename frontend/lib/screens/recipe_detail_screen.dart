@@ -5,6 +5,7 @@ import '../models/custom_tag.dart';
 import '../models/ingredient.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
+import '../models/share_item.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
 import '../widgets/buttons.dart';
@@ -13,6 +14,7 @@ import '../widgets/instruction_editor.dart';
 import '../widgets/modals/add_to_collection_modal.dart';
 import '../widgets/modals/add_to_plan_modal.dart';
 import '../widgets/modals/delete_recipe_modal.dart';
+import '../widgets/modals/share_modal.dart';
 import '../widgets/page_head.dart';
 import '../widgets/tag_chip.dart';
 import '../widgets/toast.dart';
@@ -27,6 +29,7 @@ class RecipeDetailScreen extends StatefulWidget {
     required this.onChanged,
     this.collectionsRepo,
     this.collections = const [],
+    this.sharingRepo,
     this.startInEditMode = false,
   });
 
@@ -37,6 +40,7 @@ class RecipeDetailScreen extends StatefulWidget {
   final Future<void> Function() onChanged;
   final CollectionsRepository? collectionsRepo;
   final List<Collection> collections;
+  final SharingRepository? sharingRepo;
   final bool startInEditMode;
 
   @override
@@ -127,6 +131,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       result.created
           ? 'Created ${result.collection.name} with ${r.title}'
           : 'Added to ${result.collection.name}',
+    );
+  }
+
+  Future<void> _share() async {
+    final r = _recipe;
+    final repo = widget.sharingRepo;
+    if (r == null || repo == null) return;
+    await openShareModal(
+      context,
+      item: ShareItem(type: ShareItemType.recipe, id: r.id, title: r.title),
+      sharingRepo: repo,
     );
   }
 
@@ -368,6 +383,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       Btn(label: 'Add to meal plan', icon: Icons.calendar_today_outlined, variant: BtnVariant.primary, onPressed: _addToPlan),
       if (widget.collectionsRepo != null)
         Btn(label: 'Add to collection', icon: Icons.folder_outlined, onPressed: _addToCollection),
+      if (widget.sharingRepo != null)
+        Btn(label: 'Share', icon: Icons.ios_share, onPressed: _share),
       Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
     ]);
   }
