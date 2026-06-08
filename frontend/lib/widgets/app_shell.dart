@@ -4,6 +4,7 @@ import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../models/user.dart';
+import '../screens/account_settings_screen.dart';
 import '../screens/browse_screen.dart';
 import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
@@ -99,6 +100,18 @@ class _AppShellState extends State<AppShell> {
         _error = e.toString();
       });
     }
+  }
+
+  void _openAccount() {
+    _navKeys[_tab].currentState?.push(MaterialPageRoute(
+      builder: (_) => AccountSettingsScreen(
+        user: widget.user,
+        isDark: widget.isDark,
+        onToggleTheme: widget.onToggleTheme,
+        onSignOut: widget.onSignOut,
+        onSetCanAiImport: widget.onSetCanAiImport,
+      ),
+    ));
   }
 
   void _onNav(int i) {
@@ -227,11 +240,8 @@ class _AppShellState extends State<AppShell> {
                 SideNav(
                   current: _tab,
                   onNav: _onNav,
-                  isDark: widget.isDark,
-                  onToggleTheme: widget.onToggleTheme,
                   user: widget.user,
-                  onSignOut: widget.onSignOut,
-                  onSetCanAiImport: widget.onSetCanAiImport,
+                  onOpenAccount: _openAccount,
                 ),
                 Expanded(child: content),
               ],
@@ -247,7 +257,7 @@ class _AppShellState extends State<AppShell> {
                 current: _tab,
                 onNav: _onNav,
                 user: widget.user,
-                onSignOut: widget.onSignOut,
+                onOpenAccount: _openAccount,
               ),
             ],
           ),
