@@ -55,7 +55,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   }
 
   Future<void> _load() async {
-    final c = await widget.collectionsRepo.get(widget.collectionId);
+    // The virtual "All Recipes" collection isn't persisted — derive it from the
+    // full library instead of fetching it from the repository.
+    final c = widget.collectionId == Collection.allRecipesId
+        ? Collection.allRecipes(widget.recipes)
+        : await widget.collectionsRepo.get(widget.collectionId);
     if (!mounted) return;
     setState(() {
       _collection = c;
@@ -177,14 +181,18 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                 ? '${recipes.length} recipe${recipes.length == 1 ? '' : 's'}'
                 : c.description,
           ),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            Btn(label: 'Add recipe', icon: Icons.add, variant: BtnVariant.primary, onPressed: _addRecipe),
-            Btn(label: 'Rename', icon: Icons.edit_outlined, onPressed: _rename),
-            if (widget.sharingRepo != null)
-              Btn(label: 'Share', icon: Icons.ios_share, onPressed: _share),
-            Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
-          ]),
-          const SizedBox(height: 28),
+          // "All Recipes" is virtual and always mirrors the library, so it has
+          // no edit/share/delete actions — recipes flow in and out by being
+          // created or deleted, not managed here.
+          if (!c.isAllRecipes)
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              Btn(label: 'Add recipe', icon: Icons.add, variant: BtnVariant.primary, onPressed: _addRecipe),
+              Btn(label: 'Rename', icon: Icons.edit_outlined, onPressed: _rename),
+              if (widget.sharingRepo != null)
+                Btn(label: 'Share', icon: Icons.ios_share, onPressed: _share),
+              Btn(label: 'Delete', icon: Icons.delete_outline, variant: BtnVariant.danger, onPressed: _delete),
+            ]),
+          if (!c.isAllRecipes) const SizedBox(height: 28) else const SizedBox(height: 8),
           if (recipes.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 48),
@@ -210,10 +218,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                   final r = recipes[i];
                   return Stack(children: [
                     RecipeCard(recipe: r, onTap: () => _openRecipe(r)),
-                    Positioned(
-                      top: 8, right: 8,
-                      child: _RemoveButton(onTap: () => _removeRecipe(r)),
-                    ),
+                    if (!c.isAllRecipes)
+                      Positioned(
+                        top: 8, right: 8,
+                        child: _RemoveButton(onTap: () => _removeRecipe(r)),
+                      ),
                   ]);
                 },
               );
