@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../models/meal_plan.dart';
 import '../../models/recipe.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/id_gen.dart';
 import '../modal_shell.dart';
+import 'new_plan_modal.dart';
 
 class AddToPlanResult {
   AddToPlanResult({required this.plan, required this.created});
@@ -55,36 +55,20 @@ Future<AddToPlanResult?> openAddToPlanModal(
             Text('OR', style: RecipeTypography.mono(size: 10.5, color: rt.ink3, letterSpacing: 0.84)),
             const SizedBox(height: 6),
             _PlanRow(
-              title: 'Start a new draft plan',
-              subtitle: 'Defaults to next 7 days · breakfast + dinner',
+              title: 'Start a new meal plan',
+              subtitle: 'Set its name, dates, and meals — then add this recipe',
               accent: true,
-              onTap: () {
-                final today = DateTime.now();
-                final inSeven = today.add(const Duration(days: 6));
-                String fmt(DateTime d) {
-                  const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                  return '${m[d.month-1]} ${d.day}';
-                }
-                final days = <String>[]; final dates = <String>[];
-                for (var i = 0; i < 7; i++) {
-                  final d = today.add(Duration(days: i));
-                  const dn = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-                  days.add(dn[d.weekday - 1]);
-                  dates.add('${d.month.toString().padLeft(2,'0')}/${d.day.toString().padLeft(2,'0')}');
-                }
-                final plan = MealPlan(
-                  id: newId('p'),
-                  name: null,
-                  status: PlanStatus.draft,
-                  start: fmt(today),
-                  end: fmt(inSeven),
-                  days: days,
-                  dates: dates,
-                  meals: const ['Breakfast', 'Dinner'],
-                  candidates: [recipe.id],
-                  grid: List.generate(7, (_) => List<String?>.filled(2, null)),
+              onTap: () async {
+                // Let the user configure the plan first; only once they finish
+                // the creation modal do we attach this recipe and create it.
+                final created = await openNewPlanModal(ctx);
+                if (created == null) return;
+                final withRecipe = created.copyWith(
+                  candidates: [...created.candidates, recipe.id],
                 );
-                Navigator.of(ctx, rootNavigator: true).pop(AddToPlanResult(plan: plan, created: true));
+                if (!ctx.mounted) return;
+                Navigator.of(ctx, rootNavigator: true)
+                    .pop(AddToPlanResult(plan: withRecipe, created: true));
               },
             ),
           ],

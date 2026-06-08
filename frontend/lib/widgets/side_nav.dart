@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/user.dart';
 import '../theme/app_theme.dart';
+import 'brand_logo.dart';
 
 class SideNav extends StatelessWidget {
   const SideNav({
@@ -31,9 +31,6 @@ class SideNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rt = context.rt;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final banner =
-        isDark ? 'assets/brand/banner-dark.svg' : 'assets/brand/banner-light.svg';
     return Container(
       width: 220,
       decoration: BoxDecoration(
@@ -45,14 +42,9 @@ class SideNav extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Brand
-          Padding(
-            padding: const EdgeInsets.only(bottom: 36, left: 4),
-            child: SvgPicture.asset(
-              banner,
-              width: 150,
-              alignment: Alignment.centerLeft,
-              semanticsLabel: 'Recipes',
-            ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 36, left: 4),
+            child: BrandLogo(iconSize: 22, fontSize: 21),
           ),
           for (var i = 0; i < _items.length; i++)
             _NavItem(

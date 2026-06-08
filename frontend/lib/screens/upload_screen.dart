@@ -42,9 +42,10 @@ const _exampleJson = '''{
 
 enum _UploadStage { empty, parsing, review }
 
-/// One row in the review list: either a successful, editable [draft] (which
-/// may be [saved]), or a failed parse carrying its [error]. The `manual` flag
-/// marks the "Start from scratch" entry so its header reads differently.
+/// One row in the review list: either a successful, editable [draft] or a
+/// failed parse carrying its [error]. The `manual` flag marks the "Start from
+/// scratch" entry so its header reads differently. Saving a row removes it from
+/// the list, so there's no persisted "saved" state to track.
 class _ReviewEntry {
   _ReviewEntry({
     required this.filename,
@@ -60,10 +61,8 @@ class _ReviewEntry {
   final String? error;
   final String? tier;
   final bool manual;
-  bool saved = false;
 
   bool get ok => draft != null;
-  bool get savable => ok && !saved;
 }
 
 class UploadScreen extends StatefulWidget {
@@ -226,28 +225,33 @@ class _UploadScreenState extends State<UploadScreen> {
     await widget.recipesRepo.save(draft.copyWith(id: newId('r')));
     await widget.onChanged();
     if (!mounted) return;
-    setState(() => entry.saved = true);
+    // Clear the saved row so the user can move on to the rest of the batch (or
+    // upload something new once the list empties out).
+    _removeEntry(entry);
     showToast(context, 'Saved to library');
   }
 
   Future<void> _saveAll() async {
-    final pending = _entries.where((e) => e.savable).toList();
-    if (pending.isEmpty) return;
-    var savedCount = 0;
-    for (final entry in pending) {
+    final ready = _entries.where((e) => e.ok).toList();
+    if (ready.isEmpty) return;
+    final saved = <_ReviewEntry>[];
+    for (final entry in ready) {
       final draft = entry.draft;
       if (draft == null || draft.title.trim().isEmpty) continue;
       await widget.recipesRepo.save(draft.copyWith(id: newId('r')));
-      entry.saved = true;
-      savedCount++;
+      saved.add(entry);
     }
     await widget.onChanged();
     if (!mounted) return;
-    setState(() {});
-    if (savedCount == 0) {
+    // Drop everything that saved, leaving only failures or title-less drafts.
+    setState(() {
+      _entries.removeWhere(saved.contains);
+      if (_entries.isEmpty) _stage = _UploadStage.empty;
+    });
+    if (saved.isEmpty) {
       showToast(context, 'Give your recipes a title first');
     } else {
-      showToast(context, 'Saved $savedCount to library');
+      showToast(context, 'Saved ${saved.length} to library');
     }
   }
 
@@ -431,7 +435,6 @@ class _UploadScreenState extends State<UploadScreen> {
     final total = _entries.length;
     final ok = _entries.where((e) => e.ok).length;
     final failed = total - ok;
-    final pending = _entries.where((e) => e.savable).length;
     final descParts = <String>[
       if (ok > 0) '$ok ready',
       if (failed > 0) '$failed failed',
@@ -459,10 +462,10 @@ class _UploadScreenState extends State<UploadScreen> {
             Btn(label: 'Done', onPressed: _reset),
             const SizedBox(width: 8),
             Btn(
-              label: pending > 1 ? 'Save all ($pending)' : 'Save all',
+              label: ok > 1 ? 'Save all ($ok)' : 'Save all',
               variant: BtnVariant.primary,
               icon: Icons.done_all,
-              onPressed: pending > 0 ? _saveAll : null,
+              onPressed: ok > 0 ? _saveAll : null,
             ),
           ]),
         ],
@@ -514,10 +517,6 @@ class _ReviewCardState extends State<_ReviewCard> {
       statusColor = rt.danger;
       statusIcon = Icons.error_outline;
       statusText = 'failed';
-    } else if (entry.saved) {
-      statusColor = rt.ok;
-      statusIcon = Icons.check_circle_outline;
-      statusText = 'saved';
     } else {
       statusColor = rt.ink3;
       statusIcon = Icons.description_outlined;
@@ -602,7 +601,6 @@ class _ReviewCardState extends State<_ReviewCard> {
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
               child: _ReviewForm(
                 draft: entry.draft!,
-                saved: entry.saved,
                 uploadsRepo: widget.uploadsRepo,
                 onChange: widget.onChange,
                 onSave: widget.onSave,
@@ -618,14 +616,12 @@ class _ReviewCardState extends State<_ReviewCard> {
 class _ReviewForm extends StatelessWidget {
   const _ReviewForm({
     required this.draft,
-    required this.saved,
     required this.onChange,
     required this.onSave,
     required this.onRemove,
     this.uploadsRepo,
   });
   final Recipe draft;
-  final bool saved;
   final ValueChanged<Recipe> onChange;
   final VoidCallback onSave;
   final VoidCallback onRemove;
@@ -749,10 +745,10 @@ class _ReviewForm extends StatelessWidget {
             onPressed: onRemove),
         const SizedBox(width: 8),
         Btn(
-          label: saved ? 'Saved' : 'Save to library',
+          label: 'Save to library',
           variant: BtnVariant.primary,
-          icon: saved ? Icons.check_circle : Icons.check,
-          onPressed: saved ? null : onSave,
+          icon: Icons.check,
+          onPressed: onSave,
         ),
       ]),
     ]);
