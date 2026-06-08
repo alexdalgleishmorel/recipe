@@ -93,6 +93,7 @@ locals {
     },
     local.recipes_handlers,
     local.plans_handlers,
+    local.collections_handlers,
   )
 }
 
@@ -151,6 +152,7 @@ locals {
     },
     local.recipes_routes,
     local.plans_routes,
+    local.collections_routes,
   )
 }
 
