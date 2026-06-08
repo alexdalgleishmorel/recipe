@@ -24,3 +24,24 @@ output "dynamodb_tables" {
     shares      = aws_dynamodb_table.shares.name
   }
 }
+
+# --- Cognito auth (#11) — consumed by the frontend's OAuth config (Hosted UI + JWT) ----------------
+output "cognito_user_pool_id" {
+  description = "Cognito user pool id (also the JWT issuer path segment)."
+  value       = aws_cognito_user_pool.users.id
+}
+
+output "cognito_app_client_id" {
+  description = "Public SPA app client id (the ID token's `aud` and the authorizer's audience)."
+  value       = aws_cognito_user_pool_client.spa.id
+}
+
+output "cognito_domain" {
+  description = "Full Hosted UI base URL for the Cognito OAuth flow."
+  value       = "https://${aws_cognito_user_pool_domain.hosted_ui.domain}.auth.${var.aws_region}.amazoncognito.com"
+}
+
+output "cognito_region" {
+  description = "AWS region the Cognito user pool lives in (issuer/Hosted UI host)."
+  value       = var.aws_region
+}

@@ -59,6 +59,17 @@ jobs:
 
       - name: Terraform apply
         run: terraform apply -auto-approve
+        env:
+          # Google OAuth credentials for the Cognito Google IdP (#11) — sourced from repo secrets,
+          # passed as TF_VARs so they never touch committed Terraform.
+          TF_VAR_google_client_id: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
 
-      - name: Output API base URL
-        run: terraform output -raw api_base_url || true
+      - name: Output API base URL + Cognito config
+        run: |
+          terraform output -raw api_base_url || true
+          echo
+          echo "cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id || true)"
+          echo "cognito_app_client_id=$(terraform output -raw cognito_app_client_id || true)"
+          echo "cognito_domain=$(terraform output -raw cognito_domain || true)"
+          echo "cognito_region=$(terraform output -raw cognito_region || true)"
