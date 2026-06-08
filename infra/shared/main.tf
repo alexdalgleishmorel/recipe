@@ -102,6 +102,7 @@ locals {
     local.uploads_handlers,
     local.shares_handlers,
     local.admin_handlers,
+    local.import_recipe_handlers,
   )
 }
 
@@ -167,6 +168,7 @@ locals {
     local.uploads_routes,
     local.shares_routes,
     local.admin_routes,
+    local.import_recipe_routes,
   )
 }
 
