@@ -66,16 +66,55 @@ abstract class AdminRepository {
   Future<User> setEntitlement(String userId, bool canAiImport);
 }
 
-/// AI-assisted recipe import. Parses an uploaded file (PDF / image / text)
-/// into a [Recipe] draft the user reviews before saving. This path is gated
-/// behind the `canAiImport` entitlement (#6).
+/// One file the user picked for import: its raw [bytes], its [filename], and
+/// the inferred [contentType] (e.g. `application/json`, `image/png`).
+class RecipeImportFile {
+  const RecipeImportFile({
+    required this.bytes,
+    required this.filename,
+    required this.contentType,
+  });
+
+  final Uint8List bytes;
+  final String filename;
+  final String contentType;
+}
+
+/// The per-file outcome of a multi-file import. Exactly one of [draft] /
+/// [error] is non-null: a successful parse yields an editable [draft] (plus an
+/// optional [tier] describing how it was parsed — `json`, `haiku`, `sonnet`);
+/// a failure yields a human-readable [error] (e.g. an off-schema JSON denial
+/// or an AI failure).
+class RecipeImportResult {
+  const RecipeImportResult({
+    required this.filename,
+    this.draft,
+    this.error,
+    this.tier,
+  });
+
+  final String filename;
+  final Recipe? draft;
+  final String? error;
+  final String? tier;
+
+  bool get ok => draft != null;
+}
+
+/// AI-assisted recipe import. Parses an uploaded file (PDF / image / text /
+/// JSON) into a [Recipe] draft the user reviews before saving. This path is
+/// gated behind the `canAiImport` entitlement (#6).
 ///
 /// Today's only impl is `LocalRecipeImportService`, a stub that returns a
 /// representative draft after a short delay.
 abstract class RecipeImportService {
   /// Parse [bytes] (the picked file's contents, named [filename]) into a
-  /// [Recipe] draft.
+  /// [Recipe] draft. Convenience single-file wrapper around [parseAll].
   Future<Recipe> parse({required Uint8List bytes, required String filename});
+
+  /// Parse [files] in one request, returning a per-file [RecipeImportResult]
+  /// in the same order. Each file succeeds or fails independently.
+  Future<List<RecipeImportResult>> parseAll(List<RecipeImportFile> files);
 }
 
 /// Sharing of recipes / collections as editable COPIES (fork-on-claim). Two

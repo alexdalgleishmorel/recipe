@@ -13,8 +13,11 @@ class PickedFile {
 }
 
 class Dropzone extends StatefulWidget {
-  const Dropzone({super.key, required this.onFile});
-  final ValueChanged<PickedFile> onFile;
+  const Dropzone({super.key, required this.onFiles});
+
+  /// Called with one or more picked files. The screen parses them together via
+  /// `RecipeImportService.parseAll`.
+  final ValueChanged<List<PickedFile>> onFiles;
 
   @override
   State<Dropzone> createState() => _DropzoneState();
@@ -26,14 +29,27 @@ class _DropzoneState extends State<Dropzone> {
   Future<void> _pick() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'txt'],
+      allowedExtensions: const [
+        'json',
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'gif',
+        'pdf',
+      ],
+      allowMultiple: true,
       withData: true,
     );
     if (result == null || result.files.isEmpty) return;
-    final picked = result.files.first;
-    final bytes = picked.bytes;
-    if (bytes == null) return;
-    widget.onFile(PickedFile(filename: picked.name, bytes: bytes));
+    final picked = <PickedFile>[];
+    for (final f in result.files) {
+      final bytes = f.bytes;
+      if (bytes == null) continue;
+      picked.add(PickedFile(filename: f.name, bytes: bytes));
+    }
+    if (picked.isEmpty) return;
+    widget.onFiles(picked);
   }
 
   @override
@@ -62,14 +78,14 @@ class _DropzoneState extends State<Dropzone> {
               Icon(Icons.cloud_upload_outlined, size: 48, color: rt.ink3),
               const SizedBox(height: 16),
               Text(
-                'Drop a recipe file here',
+                'Drop recipe files here',
                 style: RecipeTypography.serif(size: 22, weight: FontWeight.w500, color: rt.ink, letterSpacing: -0.22),
               ),
               const SizedBox(height: 6),
-              Text('or click to browse — PDF, image, or URL',
+              Text('or click to browse — pick one or many',
                   style: TextStyle(color: rt.ink3, fontSize: 14)),
               const SizedBox(height: 14),
-              Text('PDF · JPG · PNG · TXT',
+              Text('JSON · JPG · PNG · WEBP · GIF · PDF',
                   style: RecipeTypography.mono(size: 11, color: rt.ink3, letterSpacing: 0.66)),
             ],
           ),
