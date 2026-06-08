@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
+import 'recipe_image.dart';
 
 /// Recipe grid card — image at top with `prep+cook` overlay, then cuisine,
 /// title, and up to two static tag chips. Mirrors `.recipe-card` in the
@@ -48,13 +49,7 @@ class _RecipeCardState extends State<RecipeCard> {
                           border: Border.all(color: rt.hair),
                           borderRadius: RecipeRadius.fieldBR,
                         ),
-                        child: r.image.isEmpty
-                            ? null
-                            : Image.network(
-                                r.image,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                              ),
+                        child: RecipeImage(url: r.image),
                       ),
                       Positioned(
                         top: 10, left: 10,

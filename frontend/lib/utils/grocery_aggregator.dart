@@ -115,3 +115,21 @@ class _Bucket {
   final String unit;
   final String name;
 }
+
+/// Render an aggregated grocery map as plain text suitable for the clipboard.
+/// Categories with no items are skipped. Each line reads like "- 2 tbsp olive
+/// oil"; the leading quantity is omitted when there's none.
+String formatGroceryList(Map<GroceryCategory, List<GroceryItem>> cats) {
+  final buf = StringBuffer();
+  for (final cat in GroceryCategory.values) {
+    final items = cats[cat];
+    if (items == null || items.isEmpty) continue;
+    if (buf.isNotEmpty) buf.writeln();
+    buf.writeln('${cat.label.toUpperCase()}:');
+    for (final it in items) {
+      final qty = [formatAmt(it.amount), it.unit].where((s) => s.isNotEmpty).join(' ');
+      buf.writeln(qty.isEmpty ? '- ${it.name}' : '- $qty ${it.name}');
+    }
+  }
+  return buf.toString().trimRight();
+}
