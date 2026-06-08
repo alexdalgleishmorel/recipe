@@ -4,6 +4,7 @@ import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../screens/browse_screen.dart';
+import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/upload_screen.dart';
 import '../services/repositories.dart';
@@ -41,13 +42,16 @@ class _AppShellState extends State<AppShell> {
 
   List<Recipe> _recipes = const [];
   List<MealPlan> _plans = const [];
-  // Loaded and held in state ready for the Collections screen (issue #3).
-  // ignore: unused_field
   List<Collection> _collections = const [];
   bool _loading = true;
   String? _error;
 
-  final _navKeys = [GlobalKey<NavigatorState>(), GlobalKey<NavigatorState>(), GlobalKey<NavigatorState>()];
+  final _navKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
 
   @override
   void initState() {
@@ -95,12 +99,25 @@ class _AppShellState extends State<AppShell> {
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
         plans: _plans,
+        collectionsRepo: widget.collectionsRepo,
+        collections: _collections,
         onChanged: _refresh,
       );
     }
     if (tab == 1) {
       return UploadScreen(
         recipesRepo: widget.recipesRepo,
+        onChanged: _refresh,
+      );
+    }
+    if (tab == 2) {
+      return CollectionsScreen(
+        collections: _collections,
+        recipes: _recipes,
+        plans: _plans,
+        collectionsRepo: widget.collectionsRepo,
+        recipesRepo: widget.recipesRepo,
+        plansRepo: widget.plansRepo,
         onChanged: _refresh,
       );
     }
@@ -169,6 +186,7 @@ class _AppShellState extends State<AppShell> {
             _buildNavigator(0),
             _buildNavigator(1),
             _buildNavigator(2),
+            _buildNavigator(3),
           ],
         );
 

@@ -11,6 +11,7 @@ class BottomTabsBar extends StatelessWidget {
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
     (icon: Icons.upload_outlined, label: 'Upload'),
+    (icon: Icons.folder_outlined, label: 'Collections'),
     (icon: Icons.calendar_today_outlined, label: 'Plans'),
   ];
 
