@@ -149,6 +149,29 @@ def test_share_get_by_token_missing(dal):
     assert dal.shares.get_by_token("tok-nope") is None
 
 
+def test_share_list_by_recipient_email(dal):
+    # Two shares (from two different sharers) addressed to the same recipient email.
+    dal.shares.put("sharer-1", {"id": "s1", "recipientEmail": "bob@example.com", "itemType": "recipe"})
+    dal.shares.put("sharer-2", {"id": "s2", "recipientEmail": "bob@example.com", "itemType": "recipe"})
+    dal.shares.put("sharer-3", {"id": "s3", "recipientEmail": "carol@example.com", "itemType": "recipe"})
+    got = sorted(s["id"] for s in dal.shares.list_by_recipient_email("bob@example.com"))
+    assert got == ["s1", "s2"]
+
+
+def test_share_list_by_recipient_email_empty(dal):
+    assert dal.shares.list_by_recipient_email("nobody@example.com") == []
+
+
+def test_share_without_recipient_email_absent_from_email_index(dal):
+    # A link share carries no recipientEmail, so it must not appear in an email query (and the empty
+    # value is skipped on write, since DynamoDB rejects an empty indexed key attribute).
+    dal.shares.put(USER_A, {"id": "s9", "token": "tok-link", "itemType": "recipe"})
+    dal.shares.put("sharer-x", {"id": "s10", "recipientEmail": "bob@example.com", "itemType": "recipe"})
+    by_email = [s["id"] for s in dal.shares.list_by_recipient_email("bob@example.com")]
+    assert by_email == ["s10"]  # the link share (no recipientEmail) is absent from the index
+    assert dal.shares.get_by_token("tok-link")["id"] == "s9"
+
+
 # --- numeric round-tripping (DynamoDB stores numbers as Decimal) ---------------------------------
 def test_float_round_trips_as_float(dal):
     dal.collections.put(USER_A, {"id": "c1", "ratio": 1.5})

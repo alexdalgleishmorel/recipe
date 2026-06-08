@@ -2,7 +2,7 @@
 
 Makes the shared ``data_access`` layer importable without installing it, and stands up moto-mocked
 DynamoDB tables whose schema mirrors ``infra/shared/tables.tf`` (PK ``userId`` / SK ``entityId``,
-plus the ``email_index`` and ``token_index`` GSIs).
+plus the ``email_index``, ``token_index``, and ``recipient_email_index`` GSIs).
 """
 
 import os
@@ -66,7 +66,14 @@ def dal(monkeypatch):
         _create_entity_table(ddb, "recipe-meal-plans")
         _create_entity_table(ddb, "recipe-collections")
         _create_entity_table(ddb, "recipe-users", gsis=[("email_index", "email")])
-        _create_entity_table(ddb, "recipe-shares", gsis=[("token_index", "token")])
+        _create_entity_table(
+            ddb,
+            "recipe-shares",
+            gsis=[
+                ("token_index", "token"),
+                ("recipient_email_index", "recipientEmail"),
+            ],
+        )
 
         # Import after the mock is active and reset the lazily-built resource so it binds to moto.
         import data_access
