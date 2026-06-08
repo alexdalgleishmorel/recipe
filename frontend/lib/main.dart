@@ -8,6 +8,7 @@ import 'services/http_meal_plans_repository.dart';
 import 'services/http_recipe_import_service.dart';
 import 'services/http_recipes_repository.dart';
 import 'services/http_sharing_repository.dart';
+import 'services/http_uploads_repository.dart';
 import 'services/local_admin_repository.dart';
 import 'services/local_auth_repository.dart';
 import 'services/local_collections_repository.dart';
@@ -16,6 +17,7 @@ import 'services/local_recipe_import_service.dart';
 import 'services/local_recipes_repository.dart';
 import 'services/local_settings_repository.dart';
 import 'services/local_sharing_repository.dart';
+import 'services/local_uploads_repository.dart';
 import 'services/repositories.dart';
 import 'theme/app_theme.dart';
 import 'widgets/auth_gate.dart';
@@ -47,6 +49,7 @@ class _Repos {
     required this.sharing,
     required this.importService,
     required this.admin,
+    required this.uploads,
   });
 
   final RecipesRepository recipes;
@@ -57,6 +60,7 @@ class _Repos {
   final SharingRepository sharing;
   final RecipeImportService importService;
   final AdminRepository admin;
+  final UploadsRepository uploads;
 }
 
 _Repos _buildRepos() {
@@ -84,6 +88,7 @@ _Repos _buildRepos() {
       sharing: sharing,
       importService: importService,
       admin: HttpAdminRepository(api),
+      uploads: HttpUploadsRepository(api),
     );
   }
 
@@ -104,6 +109,7 @@ _Repos _buildRepos() {
     ),
     importService: importService,
     admin: LocalAdminRepository(),
+    uploads: LocalUploadsRepository(),
   );
 }
 
@@ -118,6 +124,7 @@ void main() {
     sharingRepo: repos.sharing,
     importService: repos.importService,
     adminRepo: repos.admin,
+    uploadsRepo: repos.uploads,
   ));
 }
 
@@ -132,6 +139,7 @@ class RecipesApp extends StatefulWidget {
     required this.sharingRepo,
     required this.importService,
     required this.adminRepo,
+    required this.uploadsRepo,
   });
 
   final RecipesRepository recipesRepo;
@@ -142,6 +150,7 @@ class RecipesApp extends StatefulWidget {
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
   final AdminRepository adminRepo;
+  final UploadsRepository uploadsRepo;
 
   @override
   State<RecipesApp> createState() => _RecipesAppState();
@@ -183,6 +192,7 @@ class _RecipesAppState extends State<RecipesApp> {
         sharingRepo: widget.sharingRepo,
         importService: widget.importService,
         adminRepo: widget.adminRepo,
+        uploadsRepo: widget.uploadsRepo,
         isDark: _dark,
         onToggleTheme: _toggleTheme,
       ),

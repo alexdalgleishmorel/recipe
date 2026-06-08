@@ -21,6 +21,7 @@ class PlansScreen extends StatefulWidget {
     required this.plansRepo,
     required this.recipesRepo,
     required this.onChanged,
+    this.uploadsRepo,
   });
 
   final List<MealPlan> plans;
@@ -28,6 +29,7 @@ class PlansScreen extends StatefulWidget {
   final MealPlansRepository plansRepo;
   final RecipesRepository recipesRepo;
   final Future<void> Function() onChanged;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<PlansScreen> createState() => _PlansScreenState();
@@ -52,6 +54,7 @@ class _PlansScreenState extends State<PlansScreen> {
         planId: saved.id,
         plansRepo: widget.plansRepo,
         recipesRepo: widget.recipesRepo,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: widget.onChanged,
       ),
     ));
@@ -164,6 +167,7 @@ class _PlansScreenState extends State<PlansScreen> {
                         planId: p.id,
                         plansRepo: widget.plansRepo,
                         recipesRepo: widget.recipesRepo,
+                        uploadsRepo: widget.uploadsRepo,
                         onChanged: widget.onChanged,
                       ),
                     )),

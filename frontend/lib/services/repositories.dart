@@ -66,6 +66,22 @@ abstract class AdminRepository {
   Future<User> setEntitlement(String userId, bool canAiImport);
 }
 
+/// Image uploads for recipe photos (#80). [uploadImage] takes the raw image
+/// [bytes] plus their [contentType] (e.g. `image/png`) and returns a public URL
+/// suitable for storing in `recipe.image`.
+///
+/// The live impl ([HttpUploadsRepository]) asks the backend to presign a PUT
+/// (`POST /uploads/presign`), uploads the bytes directly to object storage, and
+/// returns the resulting public URL. The default impl
+/// ([LocalUploadsRepository]) returns a `data:` URL so photos still render
+/// without a backend.
+abstract class UploadsRepository {
+  Future<String> uploadImage({
+    required Uint8List bytes,
+    required String contentType,
+  });
+}
+
 /// One file the user picked for import: its raw [bytes], its [filename], and
 /// the inferred [contentType] (e.g. `application/json`, `image/png`).
 class RecipeImportFile {

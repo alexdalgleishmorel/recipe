@@ -16,6 +16,7 @@ import '../widgets/modals/add_to_plan_modal.dart';
 import '../widgets/modals/delete_recipe_modal.dart';
 import '../widgets/modals/share_modal.dart';
 import '../widgets/page_head.dart';
+import '../widgets/photo_field.dart';
 import '../widgets/recipe_image.dart';
 import '../widgets/tag_chip.dart';
 import '../widgets/toast.dart';
@@ -31,6 +32,7 @@ class RecipeDetailScreen extends StatefulWidget {
     this.collectionsRepo,
     this.collections = const [],
     this.sharingRepo,
+    this.uploadsRepo,
     this.startInEditMode = false,
   });
 
@@ -42,6 +44,7 @@ class RecipeDetailScreen extends StatefulWidget {
   final CollectionsRepository? collectionsRepo;
   final List<Collection> collections;
   final SharingRepository? sharingRepo;
+  final UploadsRepository? uploadsRepo;
   final bool startInEditMode;
 
   @override
@@ -230,20 +233,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final rt = context.rt;
     return LayoutBuilder(builder: (ctx, c) {
       final isDesktop = c.maxWidth >= 760;
-      final image = AspectRatio(
-        aspectRatio: 4 / 3,
-        child: ClipRRect(
-          borderRadius: RecipeRadius.cardBR,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: rt.hair),
-              borderRadius: RecipeRadius.cardBR,
-              color: rt.paper2,
-            ),
-            child: RecipeImage(url: r.image, iconSize: 44),
-          ),
-        ),
-      );
+      final uploadsRepo = widget.uploadsRepo;
+      final Widget image = (_editing && uploadsRepo != null)
+          ? PhotoField(
+              url: _draft!.image,
+              uploadsRepo: uploadsRepo,
+              onChanged: (url) =>
+                  setState(() => _draft = _draft!.copyWith(image: url)),
+            )
+          : AspectRatio(
+              aspectRatio: 4 / 3,
+              child: ClipRRect(
+                borderRadius: RecipeRadius.cardBR,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: rt.hair),
+                    borderRadius: RecipeRadius.cardBR,
+                    color: rt.paper2,
+                  ),
+                  child: RecipeImage(url: r.image, iconSize: 44),
+                ),
+              ),
+            );
 
       final right = Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -18,6 +18,7 @@ class AuthGate extends StatefulWidget {
     required this.sharingRepo,
     required this.importService,
     required this.adminRepo,
+    required this.uploadsRepo,
     required this.isDark,
     required this.onToggleTheme,
   });
@@ -29,6 +30,7 @@ class AuthGate extends StatefulWidget {
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
   final AdminRepository adminRepo;
+  final UploadsRepository uploadsRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
 
@@ -154,6 +156,7 @@ class _AuthGateState extends State<AuthGate> {
       sharingRepo: widget.sharingRepo,
       importService: widget.importService,
       adminRepo: widget.adminRepo,
+      uploadsRepo: widget.uploadsRepo,
       isDark: widget.isDark,
       onToggleTheme: widget.onToggleTheme,
       onSignOut: _signOut,
