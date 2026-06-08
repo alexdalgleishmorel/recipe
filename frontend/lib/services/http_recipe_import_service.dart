@@ -22,15 +22,41 @@ class RecipeImportException implements Exception {
   String toString() => 'RecipeImportException: $message';
 }
 
-/// Real AI-assisted import (#19/#25). Sends the picked file inline to the
-/// Anthropic-backed Lambda at `POST /recipes/import` and turns the returned
-/// draft JSON into a [Recipe] the user reviews before saving.
+/// Infer the request content type from a filename extension. Mirrors the
+/// backend's accepted types: `application/json` for `.json`, `image/*` for
+/// images, `application/pdf` for PDFs; defaults to `image/jpeg` for unknown
+/// extensions.
+String contentTypeForFilename(String filename) {
+  final dot = filename.lastIndexOf('.');
+  final ext = dot >= 0 ? filename.substring(dot + 1).toLowerCase() : '';
+  switch (ext) {
+    case 'json':
+      return 'application/json';
+    case 'png':
+      return 'image/png';
+    case 'webp':
+      return 'image/webp';
+    case 'gif':
+      return 'image/gif';
+    case 'pdf':
+      return 'application/pdf';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    default:
+      return 'image/jpeg';
+  }
+}
+
+/// Real AI-assisted import (#19/#25/#77). Sends one or more picked files inline
+/// to the Anthropic-backed Lambda at `POST /recipes/import` and turns the
+/// returned draft JSON into [Recipe]s the user reviews before saving.
 ///
-/// The request shape matches the backend handler
-/// (`backend/functions/import_recipe/import_recipe.py`):
-/// `{contentBase64, contentType, filename}`. The response is a Recipe draft
-/// with no `id` (the server assigns one on save), so we stamp the same
-/// `'staging'` id the review screen expects.
+/// The multi request shape matches the backend handler (#76):
+/// `{"files":[{"contentBase64","contentType","filename"}, ...]}` →
+/// `{"results":[{"filename","ok":true,"tier","draft":{...}} | {"filename",
+/// "ok":false,"error"}]}`. Each draft has no `id` (the server assigns one on
+/// save), so we stamp the `'staging'` id the review screen expects.
 class HttpRecipeImportService implements RecipeImportService {
   HttpRecipeImportService(this._api);
 
@@ -41,10 +67,34 @@ class HttpRecipeImportService implements RecipeImportService {
     required Uint8List bytes,
     required String filename,
   }) async {
+    final results = await parseAll([
+      RecipeImportFile(
+        bytes: bytes,
+        filename: filename,
+        contentType: contentTypeForFilename(filename),
+      ),
+    ]);
+    final result = results.first;
+    final draft = result.draft;
+    if (draft == null) {
+      throw RecipeImportException(result.error ?? 'Could not parse that file');
+    }
+    return draft;
+  }
+
+  @override
+  Future<List<RecipeImportResult>> parseAll(
+    List<RecipeImportFile> files,
+  ) async {
     final body = <String, dynamic>{
-      'contentBase64': base64Encode(bytes),
-      'contentType': _contentTypeFor(filename),
-      'filename': filename,
+      'files': [
+        for (final f in files)
+          {
+            'contentBase64': base64Encode(f.bytes),
+            'contentType': f.contentType,
+            'filename': f.filename,
+          },
+      ],
     };
 
     final dynamic json;
@@ -63,31 +113,33 @@ class HttpRecipeImportService implements RecipeImportService {
     if (json is! Map<String, dynamic>) {
       throw RecipeImportException('The server returned an unexpected response.');
     }
-    // The draft has no id; the review screen and the local stub both use
-    // 'staging' until the recipe is saved.
-    return Recipe.fromJson({'id': 'staging', ...json});
-  }
-
-  /// Infer the request content type from the filename extension. Mirrors the
-  /// backend's accepted types (image/* or application/pdf); defaults to
-  /// `image/jpeg` for unknown extensions.
-  String _contentTypeFor(String filename) {
-    final dot = filename.lastIndexOf('.');
-    final ext = dot >= 0 ? filename.substring(dot + 1).toLowerCase() : '';
-    switch (ext) {
-      case 'png':
-        return 'image/png';
-      case 'webp':
-        return 'image/webp';
-      case 'gif':
-        return 'image/gif';
-      case 'pdf':
-        return 'application/pdf';
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-      default:
-        return 'image/jpeg';
+    final results = json['results'];
+    if (results is! List) {
+      throw RecipeImportException('The server returned an unexpected response.');
     }
+
+    return results.map<RecipeImportResult>((dynamic raw) {
+      final entry = raw as Map<String, dynamic>;
+      final filename = (entry['filename'] ?? '') as String;
+      final ok = entry['ok'] == true;
+      if (!ok) {
+        return RecipeImportResult(
+          filename: filename,
+          error: (entry['error'] as String?) ?? 'Could not parse that file',
+        );
+      }
+      final draftJson = entry['draft'];
+      if (draftJson is! Map<String, dynamic>) {
+        return RecipeImportResult(
+          filename: filename,
+          error: 'The server returned an unexpected draft.',
+        );
+      }
+      return RecipeImportResult(
+        filename: filename,
+        tier: entry['tier'] as String?,
+        draft: Recipe.fromJson({'id': 'staging', ...draftJson}),
+      );
+    }).toList();
   }
 }
