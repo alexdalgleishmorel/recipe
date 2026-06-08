@@ -4,6 +4,7 @@ import 'services/cognito_auth_repository.dart';
 import 'services/http_api_client.dart';
 import 'services/http_collections_repository.dart';
 import 'services/http_meal_plans_repository.dart';
+import 'services/http_recipe_import_service.dart';
 import 'services/http_recipes_repository.dart';
 import 'services/http_sharing_repository.dart';
 import 'services/local_auth_repository.dart';
@@ -57,8 +58,6 @@ class _Repos {
 _Repos _buildRepos() {
   // Settings stay local in both modes.
   final SettingsRepository settings = LocalSettingsRepository();
-  // RecipeImportService stays a local stub until #25 ships the real path.
-  final RecipeImportService importService = LocalRecipeImportService();
 
   if (useBackend) {
     final auth = CognitoAuthRepository();
@@ -70,6 +69,8 @@ _Repos _buildRepos() {
     final collections = HttpCollectionsRepository(api);
     // Real cross-user delivery + server-side fork (#24).
     final sharing = HttpSharingRepository(api);
+    // Real Anthropic-backed AI import (#19/#25).
+    final importService = HttpRecipeImportService(api);
     return _Repos(
       recipes: recipes,
       plans: HttpMealPlansRepository(api),
@@ -80,6 +81,9 @@ _Repos _buildRepos() {
       importService: importService,
     );
   }
+
+  // RecipeImportService stays a local stub in default (mocked) mode.
+  final RecipeImportService importService = LocalRecipeImportService();
 
   final recipes = LocalRecipesRepository();
   final collections = LocalCollectionsRepository();
