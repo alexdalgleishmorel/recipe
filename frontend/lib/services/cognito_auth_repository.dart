@@ -228,7 +228,7 @@ class CognitoAuthRepository implements AuthRepository {
     final verifier = prefs.getString(_kVerifier);
 
     // Always strip the query so a refresh doesn't re-trigger the exchange.
-    _stripQuery(current);
+    _stripQuery();
 
     if (verifier == null ||
         returnedState == null ||
@@ -375,14 +375,14 @@ class CognitoAuthRepository implements AuthRepository {
     return base64UrlEncode(digest.bytes).replaceAll('=', '');
   }
 
-  /// Replace the browser URL with the same location minus its query string,
-  /// without adding a history entry or reloading.
-  void _stripQuery(Uri current) {
-    final cleaned = current.replace(query: '', queryParameters: {}).toString();
-    // Remove a possible trailing '?' left by clearing the query.
-    final href = cleaned.endsWith('?')
-        ? cleaned.substring(0, cleaned.length - 1)
-        : cleaned;
-    web.window.history.replaceState(null, '', href);
+  /// Replace the browser URL with origin + path (dropping the OAuth `?code`/
+  /// `state` query and any fragment), without a history entry or reload.
+  ///
+  /// NOTE: do not use `Uri.replace(query: '', queryParameters: {})` — passing
+  /// both `query` and `queryParameters` throws ArgumentError. Reconstruct from
+  /// the live location instead.
+  void _stripQuery() {
+    final loc = web.window.location;
+    web.window.history.replaceState(null, '', '${loc.origin}${loc.pathname}');
   }
 }
