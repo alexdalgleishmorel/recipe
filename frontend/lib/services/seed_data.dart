@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 
@@ -19,5 +20,11 @@ class SeedData {
     final raw = await rootBundle.loadString('assets/seed/plans.json');
     final list = jsonDecode(raw) as List;
     return list.map((j) => MealPlan.fromJson(j as Map<String, dynamic>)).toList();
+  }
+
+  static Future<List<Collection>> collections() async {
+    final raw = await rootBundle.loadString('assets/seed/collections.json');
+    final list = jsonDecode(raw) as List;
+    return list.map((j) => Collection.fromJson(j as Map<String, dynamic>)).toList();
   }
 }
