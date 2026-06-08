@@ -54,6 +54,18 @@ abstract class AuthRepository {
   Future<User> setCanAiImport(bool value);
 }
 
+/// Admin-only management of other accounts' entitlements (#66). Backed by the
+/// admin endpoints (#65): `GET /admin/users` and `POST /admin/entitlements`.
+/// Today's default impl is `LocalAdminRepository` (an in-memory demo roster);
+/// `HttpAdminRepository` talks to the live backend. Swapped in `main.dart`.
+abstract class AdminRepository {
+  /// All accounts known to the backend (admin-only).
+  Future<List<User>> listUsers();
+
+  /// Set the `canAiImport` entitlement for [userId] and return the updated user.
+  Future<User> setEntitlement(String userId, bool canAiImport);
+}
+
 /// AI-assisted recipe import. Parses an uploaded file (PDF / image / text)
 /// into a [Recipe] draft the user reviews before saving. This path is gated
 /// behind the `canAiImport` entitlement (#6).
