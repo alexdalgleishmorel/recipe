@@ -1,3 +1,21 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+override.tf
+override.tf.json
+
+# Backend build output
+backend/dist/
+infra/shared/.build/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
 
 # Claude Code agent worktrees
 .claude/worktrees/
