@@ -5,17 +5,29 @@
 # ---------------------------------------------------------------------------------------------------
 
 data "tls_certificate" "github" {
-  url = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
+  count = var.create_oidc_provider ? 1 : 0
+  url   = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
 }
 
+# The GitHub OIDC provider is account-global — only one `token.actions.githubusercontent.com` can
+# exist per AWS account. Create it only when this stack owns it; otherwise reference the provider
+# another stack in the same account already created (e.g. composable-site-platform). Default is to
+# reuse the existing one.
 resource "aws_iam_openid_connect_provider" "github" {
+  count           = var.create_oidc_provider ? 1 : 0
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+  thumbprint_list = [data.tls_certificate.github[0].certificates[0].sha1_fingerprint]
+}
+
+data "aws_iam_openid_connect_provider" "github" {
+  count = var.create_oidc_provider ? 0 : 1
+  url   = "https://token.actions.githubusercontent.com"
 }
 
 locals {
   repo_sub_prefix = "repo:${var.github_org}/${var.github_repo}"
+  github_oidc_arn = var.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
 }
 
 # --- Trust policies -------------------------------------------------------------------------------
@@ -31,7 +43,7 @@ data "aws_iam_policy_document" "plan_trust" {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github.arn]
+      identifiers = [local.github_oidc_arn]
     }
     condition {
       test     = "StringEquals"
@@ -53,7 +65,7 @@ data "aws_iam_policy_document" "deploy_trust" {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github.arn]
+      identifiers = [local.github_oidc_arn]
     }
     condition {
       test     = "StringEquals"
