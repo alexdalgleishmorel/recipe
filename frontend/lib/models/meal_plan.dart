@@ -1,5 +1,3 @@
-import 'chat_message.dart';
-
 enum PlanStatus { draft, finalized }
 
 class MealPlan {
@@ -14,7 +12,6 @@ class MealPlan {
     required this.meals,
     required this.candidates,
     required this.grid,
-    required this.chat,
   });
 
   final String id;
@@ -28,7 +25,6 @@ class MealPlan {
   final List<String> candidates;
   // grid[dayIdx][mealIdx] = recipeId | null
   final List<List<String?>> grid;
-  final List<ChatMessage> chat;
 
   String get displayName => (name == null || name!.isEmpty)
       ? 'Week of $start–$end'
@@ -48,7 +44,6 @@ class MealPlan {
     List<String>? meals,
     List<String>? candidates,
     List<List<String?>>? grid,
-    List<ChatMessage>? chat,
   }) {
     final nextName = nameExplicit ? name : (name ?? this.name);
     return MealPlan(
@@ -62,7 +57,6 @@ class MealPlan {
         meals: meals ?? this.meals,
         candidates: candidates ?? this.candidates,
         grid: grid ?? this.grid,
-        chat: chat ?? this.chat,
       );
   }
 
@@ -79,9 +73,6 @@ class MealPlan {
         grid: ((j['grid'] as List?) ?? const [])
             .map<List<String?>>((row) => (row as List).map<String?>((c) => c?.toString()).toList())
             .toList(),
-        chat: ((j['chat'] as List?) ?? const [])
-            .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
-            .toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -95,6 +86,5 @@ class MealPlan {
         'meals': meals,
         'candidates': candidates,
         'grid': grid,
-        'chat': chat.map((c) => c.toJson()).toList(),
       };
 }

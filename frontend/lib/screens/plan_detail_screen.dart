@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/chat_message.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../services/repositories.dart';
@@ -8,7 +7,6 @@ import '../theme/app_theme.dart';
 import '../utils/id_gen.dart';
 import '../widgets/buttons.dart';
 import '../widgets/candidates_panel.dart';
-import '../widgets/chat_panel.dart';
 import '../widgets/grocery_section.dart';
 import '../widgets/meal_calendar.dart';
 import '../widgets/modals/confirm_modals.dart';
@@ -43,7 +41,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   final Set<int> _collapsedDays = {};
   Set<String> _grocerySel = {};
-  bool _aiEnabled = true;
   bool _editingTitle = false;
   late final TextEditingController _titleCtrl;
 
@@ -184,32 +181,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         onChanged: widget.onChanged,
       ),
     ));
-  }
-
-  void _onChat(String text) {
-    final p = _plan!;
-    final messages = List<ChatMessage>.from(p.chat)..add(ChatMessage(who: ChatWho.user, text: text));
-    setState(() => _plan = p.copyWith(chat: messages));
-    Future.delayed(const Duration(milliseconds: 250), () async {
-      if (!mounted) return;
-      final reply = _cannedReply(text);
-      final next = List<ChatMessage>.from(_plan!.chat)..add(ChatMessage(who: ChatWho.ai, text: reply));
-      await _save(_plan!.copyWith(chat: next));
-    });
-  }
-
-  String _cannedReply(String prompt) {
-    final p = prompt.toLowerCase();
-    if (p.contains('whole week') || p.contains('plan the')) {
-      return "I'll fill the empty cells using your candidates first, then suggest a couple of crowd-pleasers for the gaps. Want me to keep Friday open?";
-    }
-    if (p.contains('candidate')) {
-      return "Three picks based on your library: Greek Lemon Chicken (sheet-pan), Mushroom Risotto (date night), and Chana Masala (pantry). Add any of them?";
-    }
-    if (p.contains('grocery')) {
-      return "Aggregating ingredients for the assigned cells now — open the Grocery section below to review the list and uncheck anything you already have.";
-    }
-    return "Noted. I can suggest swaps, fill empty days, or generate a grocery list — just ask.";
   }
 
   @override
@@ -400,29 +371,18 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           await _save(p.copyWith(candidates: next));
         },
       );
-      final chat = ChatPanel(
-        messages: p.chat,
-        enabled: _aiEnabled && !readOnly,
-        onToggle: (v) => setState(() => _aiEnabled = v),
-        onSend: _onChat,
-      );
-
       if (wide) {
         return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: calendar),
           const SizedBox(width: 32),
           SizedBox(
             width: 320,
-            child: Column(children: [
-              cands,
-              const SizedBox(height: 16),
-              chat,
-            ]),
+            child: cands,
           ),
         ]);
       }
       return Column(children: [
-        calendar, const SizedBox(height: 24), cands, const SizedBox(height: 24), chat,
+        calendar, const SizedBox(height: 24), cands,
       ]);
     });
   }

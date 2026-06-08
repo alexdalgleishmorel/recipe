@@ -83,7 +83,6 @@ Future<AddToPlanResult?> openAddToPlanModal(
                   meals: const ['Breakfast', 'Dinner'],
                   candidates: [recipe.id],
                   grid: List.generate(7, (_) => List<String?>.filled(2, null)),
-                  chat: const [],
                 );
                 Navigator.of(ctx, rootNavigator: true).pop(AddToPlanResult(plan: plan, created: true));
               },

@@ -17,14 +17,6 @@
       [null, null],
       [null, null],
       [null, null]
-    ],
-    "chat": [
-      {"who": "user", "text": "Plan breakfast and dinner for the week. I'm cooking for two."},
-      {"who": "ai", "text": "Got it. I'll lean on quick weekday breakfasts and one weekend braise. Any cuisines to favor?"},
-      {"who": "user", "text": "Mediterranean and Italian, please. Nothing too heavy on Mondays."},
-      {"who": "ai", "text": "Pencilled in Buttermilk Pancakes for Mon/Wed and Greek Lemon Chicken for Tue. Want me to fill the rest with your candidates?"},
-      {"who": "user", "text": "Yes, but keep one slot open Fri for takeout."},
-      {"who": "ai", "text": "Will do. Risotto on Thursday since it'll use the leftover wine from Tuesday."}
     ]
   },
   {
@@ -45,7 +37,6 @@
       ["r8", "r4", "r7"],
       ["r9", "r5", "r12"],
       ["r8", "r2", "r10"]
-    ],
-    "chat": []
+    ]
   }
 ]
