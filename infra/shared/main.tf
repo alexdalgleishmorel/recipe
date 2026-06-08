@@ -140,8 +140,8 @@ resource "aws_apigatewayv2_api" "http" {
   }
 }
 
-# TODO(#11): add an aws_apigatewayv2_authorizer (JWT) wired to the Cognito user pool, then flip the
-# auth routes below to authorization_type = "JWT".
+# The Cognito JWT authorizer (aws_apigatewayv2_authorizer.cognito_jwt) and the user pool it verifies
+# against live in auth.tf (#11). Routes opt in via local.routes[*].auth (see aws_apigatewayv2_route.api).
 
 resource "aws_apigatewayv2_integration" "api" {
   for_each               = local.handlers
@@ -177,8 +177,9 @@ resource "aws_apigatewayv2_route" "api" {
   # Routes name the handler they hit via `integration`, so several routes can share one Lambda
   # (e.g. all five recipe routes -> the recipes integration).
   target = "integrations/${aws_apigatewayv2_integration.api[each.value.integration].id}"
-  # TODO(#11): authorization_type = each.value.auth ? "JWT" : "NONE" (+ authorizer_id).
-  authorization_type = "NONE"
+  # App routes (auth = true) require a verified Cognito JWT; `hello` (auth = false) stays open.
+  authorization_type = each.value.auth ? "JWT" : "NONE"
+  authorizer_id      = each.value.auth ? aws_apigatewayv2_authorizer.cognito_jwt.id : null
 }
 
 resource "aws_apigatewayv2_stage" "default" {

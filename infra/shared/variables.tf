@@ -20,3 +20,18 @@ variable "admin_email" {
   type        = string
   default     = "alex.dalgleishmorel@gmail.com"
 }
+
+# --- Google OAuth (#11) ---------------------------------------------------------------------------
+# Credentials for the Cognito Google identity provider. Supplied by CI from repo secrets
+# (TF_VAR_google_client_id / TF_VAR_google_client_secret) — never committed, no default.
+variable "google_client_id" {
+  description = "Google OAuth 2.0 client id for the Cognito Google IdP."
+  type        = string
+  sensitive   = true
+}
+
+variable "google_client_secret" {
+  description = "Google OAuth 2.0 client secret for the Cognito Google IdP."
+  type        = string
+  sensitive   = true
+}
