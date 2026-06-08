@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
+import '../models/user.dart';
 import '../screens/browse_screen.dart';
 import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
@@ -20,18 +21,24 @@ const kDesktopBreakpoint = 760.0;
 class AppShell extends StatefulWidget {
   const AppShell({
     super.key,
+    required this.user,
     required this.recipesRepo,
     required this.plansRepo,
     required this.collectionsRepo,
     required this.isDark,
     required this.onToggleTheme,
+    required this.onSignOut,
   });
 
+  /// The signed-in user. Later issues read `user.isAdmin` (#5 sharing) and
+  /// `user.canAiImport` (#6 gated import) to gate UI.
+  final User user;
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
   final CollectionsRepository collectionsRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
+  final Future<void> Function() onSignOut;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -200,6 +207,8 @@ class _AppShellState extends State<AppShell> {
                   onNav: _onNav,
                   isDark: widget.isDark,
                   onToggleTheme: widget.onToggleTheme,
+                  user: widget.user,
+                  onSignOut: widget.onSignOut,
                 ),
                 Expanded(child: content),
               ],
@@ -211,7 +220,12 @@ class _AppShellState extends State<AppShell> {
           body: Column(
             children: [
               Expanded(child: content),
-              BottomTabsBar(current: _tab, onNav: _onNav),
+              BottomTabsBar(
+                current: _tab,
+                onNav: _onNav,
+                user: widget.user,
+                onSignOut: widget.onSignOut,
+              ),
             ],
           ),
         );

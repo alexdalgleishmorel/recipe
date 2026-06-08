@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../models/user.dart';
 import '../theme/app_theme.dart';
 
 class BottomTabsBar extends StatelessWidget {
-  const BottomTabsBar({super.key, required this.current, required this.onNav});
+  const BottomTabsBar({
+    super.key,
+    required this.current,
+    required this.onNav,
+    required this.user,
+    required this.onSignOut,
+  });
 
   final int current;
   final ValueChanged<int> onNav;
+  final User user;
+  final Future<void> Function() onSignOut;
 
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
@@ -14,6 +23,66 @@ class BottomTabsBar extends StatelessWidget {
     (icon: Icons.folder_outlined, label: 'Collections'),
     (icon: Icons.calendar_today_outlined, label: 'Plans'),
   ];
+
+  Future<void> _openAccount(BuildContext context) async {
+    final rt = context.rt;
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: rt.paper,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.displayName,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: rt.ink,
+                            ),
+                          ),
+                          Text(
+                            user.email,
+                            style: TextStyle(fontSize: 12, color: rt.ink3),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 1, color: rt.hair),
+              ListTile(
+                leading: Icon(Icons.logout, size: 20, color: rt.ink2),
+                title: Text(
+                  'Sign out',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: rt.ink2,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onSignOut();
+                },
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +103,12 @@ class BottomTabsBar extends StatelessWidget {
               icon: _items[i].icon, label: _items[i].label,
               active: i == current, onTap: () => onNav(i),
             ),
+          _Tab(
+            icon: Icons.person_outline,
+            label: 'Account',
+            active: false,
+            onTap: () => _openAccount(context),
+          ),
         ],
       ),
     );
