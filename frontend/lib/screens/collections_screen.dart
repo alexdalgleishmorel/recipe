@@ -43,11 +43,13 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   Future<void> _newCollection() async {
     final created = await openCollectionFormModal(context);
     if (created == null) return;
-    await widget.collectionsRepo.save(created);
+    // Use the saved collection's id: the backend assigns its own id on create,
+    // so opening the pre-save (client) id would 404 ("not found").
+    final saved = await widget.collectionsRepo.save(created);
     await widget.onChanged();
     if (!mounted) return;
     showToast(context, 'Collection created');
-    _open(created.id);
+    _open(saved.id);
   }
 
   void _open(String id) {

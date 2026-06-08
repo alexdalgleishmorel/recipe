@@ -41,13 +41,15 @@ class _PlansScreenState extends State<PlansScreen> {
   Future<void> _newPlan() async {
     final p = await openNewPlanModal(context);
     if (p == null) return;
-    await widget.plansRepo.save(p);
+    // Use the saved plan's id: the backend assigns its own id on create, so
+    // navigating with the pre-save (client) id would 404 ("not found").
+    final saved = await widget.plansRepo.save(p);
     await widget.onChanged();
     if (!mounted) return;
     showToast(context, 'Draft created');
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => PlanDetailScreen(
-        planId: p.id,
+        planId: saved.id,
         plansRepo: widget.plansRepo,
         recipesRepo: widget.recipesRepo,
         onChanged: widget.onChanged,
