@@ -9,13 +9,15 @@ class BottomTabsBar extends StatelessWidget {
     required this.current,
     required this.onNav,
     required this.user,
-    required this.onSignOut,
+    required this.onOpenAccount,
   });
 
   final int current;
   final ValueChanged<int> onNav;
   final User user;
-  final Future<void> Function() onSignOut;
+
+  /// Opens the account settings page (pushed onto the active tab's Navigator).
+  final VoidCallback onOpenAccount;
 
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
@@ -78,9 +80,9 @@ class BottomTabsBar extends StatelessWidget {
               ),
               Divider(height: 1, color: rt.hair),
               ListTile(
-                leading: Icon(Icons.logout, size: 20, color: rt.ink2),
+                leading: Icon(Icons.settings_outlined, size: 20, color: rt.ink2),
                 title: Text(
-                  'Sign out',
+                  'Account settings',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -89,7 +91,7 @@ class BottomTabsBar extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  onSignOut();
+                  onOpenAccount();
                 },
               ),
               const SizedBox(height: 4),
