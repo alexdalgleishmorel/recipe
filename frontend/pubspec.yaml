@@ -15,6 +15,12 @@ dependencies:
   # HTTP client — ready for the future remote repository implementation.
   http: ^1.2.0
 
+  # SHA-256 for the OAuth2 PKCE code challenge (Cognito auth).
+  crypto: ^3.0.0
+
+  # Browser interop (URL read/strip, redirect) for web OAuth flow.
+  web: ^1.0.0
+
   # Local persistence for the in-memory mock data layer.
   shared_preferences: ^2.3.0
 
