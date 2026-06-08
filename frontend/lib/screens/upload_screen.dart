@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/ingredient.dart';
 import '../models/recipe.dart';
+import '../models/user.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
 import '../utils/id_gen.dart';
@@ -15,8 +15,17 @@ import '../widgets/toast.dart';
 enum _UploadStage { empty, parsing, review }
 
 class UploadScreen extends StatefulWidget {
-  const UploadScreen({super.key, required this.recipesRepo, required this.onChanged});
+  const UploadScreen({
+    super.key,
+    required this.user,
+    required this.recipesRepo,
+    required this.importService,
+    required this.onChanged,
+  });
+
+  final User user;
   final RecipesRepository recipesRepo;
+  final RecipeImportService importService;
   final Future<void> Function() onChanged;
 
   @override
@@ -28,18 +37,29 @@ class _UploadScreenState extends State<UploadScreen> {
   String _filename = '';
   Recipe _draft = Recipe.blank('staging');
 
-  void _onFile(String name) {
+  Future<void> _onFile(PickedFile file) async {
     setState(() {
-      _filename = name;
+      _filename = file.filename;
       _stage = _UploadStage.parsing;
     });
-    Future.delayed(const Duration(milliseconds: 1800), () {
+    try {
+      final parsed = await widget.importService.parse(
+        bytes: file.bytes,
+        filename: file.filename,
+      );
       if (!mounted) return;
       setState(() {
         _stage = _UploadStage.review;
-        _draft = _demoRecipe();
+        _draft = parsed;
       });
-    });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _stage = _UploadStage.empty;
+        _filename = '';
+      });
+      showToast(context, 'Could not parse that file');
+    }
   }
 
   void _scratch() {
@@ -75,45 +95,17 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
-  Recipe _demoRecipe() => Recipe(
-        id: 'staging',
-        title: "Mom's Sunday Lasagna",
-        cuisine: 'Italian',
-        image: '',
-        description:
-            'A bolognese lasagna with fresh pasta sheets, slow-cooked sauce, and a creamy béchamel. Best made the day before.',
-        prepTime: 30,
-        cookTime: 90,
-        servings: 8,
-        tags: const ['family', 'sunday'],
-        dietary: const [],
-        author: 'Me',
-        customTags: const [],
-        ingredients: const [
-          Ingredient(amount: '1', unit: 'lb', name: 'fresh lasagna sheets'),
-          Ingredient(amount: '2', unit: 'lb', name: 'ground beef + pork mix'),
-          Ingredient(amount: '1', unit: 'qt', name: 'whole tomatoes'),
-          Ingredient(amount: '1', unit: 'cup', name: 'béchamel'),
-          Ingredient(amount: '300', unit: 'g', name: 'mozzarella'),
-        ],
-        instructions: const [
-          'Brown the meat in olive oil with a soffritto until deeply colored.',
-          'Add tomatoes; simmer 90 minutes until thick.',
-          'Make the béchamel; season with nutmeg.',
-          'Layer pasta, sauce, béchamel, and mozzarella in a deep dish.',
-          'Bake at 375°F for 35 minutes; rest 15 before slicing.',
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
     return ContentScroll(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const PageHead(
+          PageHead(
             title: 'Upload',
-            subtitle: 'Drop a file, paste a URL, or write one from scratch',
+            subtitle: widget.user.canAiImport
+                ? 'Drop a file to import with AI, or write one from scratch'
+                : 'Write a recipe from scratch',
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
@@ -161,21 +153,24 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Widget _emptyBox() {
     final rt = context.rt;
+    final canAi = widget.user.canAiImport;
     return _stateBlock(
       title: 'Add a recipe',
-      desc: 'no file selected',
+      desc: canAi ? 'no file selected' : 'manual entry',
       child: Column(children: [
-        Dropzone(onFile: _onFile),
-        const SizedBox(height: 20),
-        Row(children: [
-          Expanded(child: Container(height: 1, color: rt.hair)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text('OR', style: RecipeTypography.mono(size: 10, color: rt.ink3, letterSpacing: 1.4)),
-          ),
-          Expanded(child: Container(height: 1, color: rt.hair)),
-        ]),
-        const SizedBox(height: 18),
+        if (canAi) ...[
+          Dropzone(onFile: _onFile),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(child: Container(height: 1, color: rt.hair)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Text('OR', style: RecipeTypography.mono(size: 10, color: rt.ink3, letterSpacing: 1.4)),
+            ),
+            Expanded(child: Container(height: 1, color: rt.hair)),
+          ]),
+          const SizedBox(height: 18),
+        ],
         Center(
           child: Btn(
             label: 'Start from scratch',
@@ -183,6 +178,23 @@ class _UploadScreenState extends State<UploadScreen> {
             onPressed: _scratch,
           ),
         ),
+        if (!canAi) ...[
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.auto_awesome_outlined, size: 14, color: rt.ink3),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'AI import is admin-enabled — write your recipe by hand for now.',
+                  textAlign: TextAlign.center,
+                  style: RecipeTypography.mono(size: 11, color: rt.ink3, letterSpacing: 0.4),
+                ),
+              ),
+            ],
+          ),
+        ],
       ]),
     );
   }

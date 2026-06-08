@@ -13,6 +13,7 @@ class SideNav extends StatelessWidget {
     required this.onToggleTheme,
     required this.user,
     required this.onSignOut,
+    required this.onSetCanAiImport,
   });
 
   final int current;
@@ -21,6 +22,9 @@ class SideNav extends StatelessWidget {
   final VoidCallback onToggleTheme;
   final User user;
   final Future<void> Function() onSignOut;
+
+  /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
+  final Future<void> Function(bool) onSetCanAiImport;
 
   static const _items = [
     (icon: Icons.grid_view_outlined, label: 'Browse'),
@@ -65,6 +69,13 @@ class SideNav extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (user.isAdmin) ...[
+                  _AdminAiToggle(
+                    value: user.canAiImport,
+                    onChanged: onSetCanAiImport,
+                  ),
+                  const SizedBox(height: 6),
+                ],
                 ThemeToggle(isDark: isDark, onToggle: onToggleTheme),
                 const SizedBox(height: 6),
                 _AccountRow(user: user, onSignOut: onSignOut),
@@ -119,6 +130,72 @@ class _AccountRow extends StatelessWidget {
               Icon(Icons.logout, size: 16, color: rt.ink3),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Admin-only switch for the AI-import entitlement (#6). Mirrors the
+/// `ThemeToggle` track/thumb styling. Local stand-in for the admin endpoint
+/// (#20) — toggles `canAiImport` on the current account.
+class _AdminAiToggle extends StatelessWidget {
+  const _AdminAiToggle({required this.value, required this.onChanged});
+  final bool value;
+  final Future<void> Function(bool) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final rt = context.rt;
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: RecipeRadius.fieldBR,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 34,
+              height: 18,
+              decoration: BoxDecoration(
+                color: value ? rt.accent : rt.hair,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: rt.hair2),
+              ),
+              child: Stack(children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  left: value ? 16 : 1,
+                  top: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    margin: const EdgeInsets.only(top: 1),
+                    decoration: BoxDecoration(
+                      color: rt.paper,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: rt.hair2),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'AI IMPORT',
+                overflow: TextOverflow.ellipsis,
+                style: RecipeTypography.mono(
+                  size: 11,
+                  weight: FontWeight.w400,
+                  color: rt.ink2,
+                  letterSpacing: 0.66,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

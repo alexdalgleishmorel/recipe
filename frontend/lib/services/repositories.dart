@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../models/collection.dart';
 import '../models/incoming_share.dart';
 import '../models/meal_plan.dart';
@@ -46,6 +48,23 @@ abstract class AuthRepository {
   Future<User> signInWithGoogle();
   Future<User> signInWithApple();
   Future<void> signOut();
+
+  /// Toggle the AI-import entitlement (#6) for the current account and return
+  /// the updated user. This is the local approximation of the admin endpoint
+  /// (#20); a real backend would scope this to admin callers.
+  Future<User> setCanAiImport(bool value);
+}
+
+/// AI-assisted recipe import. Parses an uploaded file (PDF / image / text)
+/// into a [Recipe] draft the user reviews before saving. This path is gated
+/// behind the `canAiImport` entitlement (#6).
+///
+/// Today's only impl is `LocalRecipeImportService`, a stub that returns a
+/// representative draft after a short delay.
+abstract class RecipeImportService {
+  /// Parse [bytes] (the picked file's contents, named [filename]) into a
+  /// [Recipe] draft.
+  Future<Recipe> parse({required Uint8List bytes, required String filename});
 }
 
 /// Sharing of recipes / collections as editable COPIES (fork-on-claim). Two
