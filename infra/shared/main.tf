@@ -101,6 +101,7 @@ locals {
     local.me_handlers,
     local.uploads_handlers,
     local.shares_handlers,
+    local.admin_handlers,
   )
 }
 
@@ -165,6 +166,7 @@ locals {
     local.me_routes,
     local.uploads_routes,
     local.shares_routes,
+    local.admin_routes,
   )
 }
 
