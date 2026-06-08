@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/user.dart';
 import '../services/repositories.dart';
 import '../theme/app_theme.dart';
+import '../widgets/brand_logo.dart';
 
 /// Landing / sign-in screen. OAuth only — no email/password fields.
 /// Shown by the root gate whenever there is no signed-in user.
@@ -46,9 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final rt = context.rt;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final banner =
-        isDark ? 'assets/brand/banner-dark.svg' : 'assets/brand/banner-light.svg';
     return Scaffold(
       backgroundColor: rt.paper,
       body: Center(
@@ -60,12 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Center(
-                  child: SvgPicture.asset(
-                    banner,
-                    width: 220,
-                    semanticsLabel: 'Recipes',
-                  ),
+                const Center(
+                  child: BrandLogo(iconSize: 36, fontSize: 34),
                 ),
                 const SizedBox(height: 16),
                 Text(
