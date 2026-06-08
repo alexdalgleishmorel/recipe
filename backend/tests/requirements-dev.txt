@@ -6,3 +6,8 @@
 boto3>=1.34
 moto[dynamodb,s3,secretsmanager]>=5.0
 pytest>=8.0
+# The #76 import pipeline parses JSON uploads (jsonschema) and downsizes images (Pillow) in pure
+# Python with no AI call, so those tiers run for real in tests. PyMuPDF (PDF render) and anthropic
+# (the SDK) are imported lazily and stubbed/avoided in tests, so they stay out of the test deps.
+jsonschema>=4.0
+pillow>=10.0

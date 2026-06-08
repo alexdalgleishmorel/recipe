@@ -98,6 +98,14 @@ locals {
     UPLOADS_BUCKET = aws_s3_bucket.uploads.bucket
   }
 
+  # Per-function resource overrides (timeout/memory), keyed by the handler entrypoint string. The AI
+  # import handler downsizes images / renders PDFs and may chain a fallback model call, so it needs a
+  # bigger budget; everything else keeps the lean defaults. Looked up in aws_lambda_function.api.
+  function_config = {
+    "import_recipe.handler" = { timeout = 60, memory_size = 1024 }
+  }
+  default_function_config = { timeout = 10, memory_size = 128 }
+
   # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue by
   # merging in the issue's own map (defined in its own file, e.g. recipes.tf) — keep this block lean.
   handlers = merge(
@@ -123,7 +131,8 @@ resource "aws_lambda_function" "api" {
   handler          = each.value
   filename         = data.archive_file.api.output_path
   source_code_hash = data.archive_file.api.output_base64sha256
-  timeout          = 10
+  timeout          = lookup(local.function_config, each.value, local.default_function_config).timeout
+  memory_size      = lookup(local.function_config, each.value, local.default_function_config).memory_size
 
   environment {
     variables = local.lambda_env

@@ -1,4 +1,11 @@
-# Runtime dependencies for the AI recipe-import handler (#19). The official Anthropic SDK is the only
-# third-party dep build.sh vendors into the bundle; boto3 (Secrets Manager + S3) is provided by the
-# Lambda runtime, and the common + data_access layers are bundled by build.sh.
+# Runtime dependencies for the AI recipe-import handler (#76). build.sh vendors these into the
+# bundle. boto3 (Secrets Manager + S3) is provided by the Lambda runtime; the common + data_access
+# layers are bundled by build.sh.
+#   anthropic  - the official SDK (structured outputs, prompt caching, Message Batches API).
+#   pillow     - downsize uploaded images so the longest edge <= 1568px (fewer image tokens).
+#   pymupdf    - render PDF pages to images at a capped DPI (avoids the document text-token surcharge).
+#   jsonschema - strictly validate JSON uploads against the canonical RECIPE_JSON_SCHEMA.
 anthropic>=0.40
+pillow>=10.0
+pymupdf>=1.24
+jsonschema>=4.0
