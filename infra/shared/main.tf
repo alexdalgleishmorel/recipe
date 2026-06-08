@@ -85,10 +85,14 @@ locals {
     SHARES_TABLE      = aws_dynamodb_table.shares.name
   }
 
-  # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue.
-  handlers = {
-    hello = "hello.handler"
-  }
+  # Map of logical function name -> handler entrypoint ("<module>.<function>"). Extend per issue by
+  # merging in the issue's own map (defined in its own file, e.g. recipes.tf) — keep this block lean.
+  handlers = merge(
+    {
+      hello = "hello.handler"
+    },
+    local.recipes_handlers,
+  )
 }
 
 resource "aws_lambda_function" "api" {
@@ -137,17 +141,24 @@ resource "aws_apigatewayv2_integration" "api" {
 
 locals {
   # Map of logical name -> route. `auth` is a placeholder until the #11 JWT authorizer exists.
-  routes = {
-    hello = { key = "GET /hello", auth = false }
-    # TODO(#14-#16): GET/POST/PUT/DELETE /recipes, /plans, /grocery — auth = true once #11 lands.
-  }
+  # `integration` names the handler (local.handlers key) that backs the route, so several routes can
+  # share one Lambda (the recipes handler dispatches all five recipe routes). Extend per issue by
+  # merging in the issue's own map (its own file, e.g. recipes.tf) — keep this block lean.
+  routes = merge(
+    {
+      hello = { key = "GET /hello", integration = "hello", auth = false }
+    },
+    local.recipes_routes,
+  )
 }
 
 resource "aws_apigatewayv2_route" "api" {
   for_each  = local.routes
   api_id    = aws_apigatewayv2_api.http.id
   route_key = each.value.key
-  target    = "integrations/${aws_apigatewayv2_integration.api[each.key].id}"
+  # Routes name the handler they hit via `integration`, so several routes can share one Lambda
+  # (e.g. all five recipe routes -> the recipes integration).
+  target = "integrations/${aws_apigatewayv2_integration.api[each.value.integration].id}"
   # TODO(#11): authorization_type = each.value.auth ? "JWT" : "NONE" (+ authorizer_id).
   authorization_type = "NONE"
 }
