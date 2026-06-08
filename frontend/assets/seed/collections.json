@@ -1,0 +1,20 @@
+[
+  {
+    "id": "c1",
+    "name": "Weeknight Dinners",
+    "description": "Fast, reliable mains for busy evenings.",
+    "recipeIds": ["r2", "r6", "r15", "r16", "r22"]
+  },
+  {
+    "id": "c2",
+    "name": "Vegetarian",
+    "description": "Meat-free favourites packed with flavour.",
+    "recipeIds": ["r1", "r3", "r10", "r11", "r13", "r14", "r19", "r20"]
+  },
+  {
+    "id": "c3",
+    "name": "Weekend Project Cooking",
+    "description": "Slow, rewarding recipes for when you have time.",
+    "recipeIds": ["r7", "r12", "r19", "r24"]
+  }
+]

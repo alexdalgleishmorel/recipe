@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 import '../screens/browse_screen.dart';
@@ -20,12 +21,14 @@ class AppShell extends StatefulWidget {
     super.key,
     required this.recipesRepo,
     required this.plansRepo,
+    required this.collectionsRepo,
     required this.isDark,
     required this.onToggleTheme,
   });
 
   final RecipesRepository recipesRepo;
   final MealPlansRepository plansRepo;
+  final CollectionsRepository collectionsRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
 
@@ -38,6 +41,9 @@ class _AppShellState extends State<AppShell> {
 
   List<Recipe> _recipes = const [];
   List<MealPlan> _plans = const [];
+  // Loaded and held in state ready for the Collections screen (issue #3).
+  // ignore: unused_field
+  List<Collection> _collections = const [];
   bool _loading = true;
   String? _error;
 
@@ -54,11 +60,13 @@ class _AppShellState extends State<AppShell> {
       final results = await Future.wait([
         widget.recipesRepo.list(),
         widget.plansRepo.list(),
+        widget.collectionsRepo.list(),
       ]);
       if (!mounted) return;
       setState(() {
         _recipes = results[0] as List<Recipe>;
         _plans = results[1] as List<MealPlan>;
+        _collections = results[2] as List<Collection>;
         _loading = false;
         _error = null;
       });

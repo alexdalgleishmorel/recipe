@@ -1,3 +1,4 @@
+import '../models/collection.dart';
 import '../models/meal_plan.dart';
 import '../models/recipe.dart';
 
@@ -15,6 +16,14 @@ abstract class MealPlansRepository {
   Future<List<MealPlan>> list();
   Future<MealPlan?> get(String id);
   Future<MealPlan> save(MealPlan plan);
+  Future<void> delete(String id);
+}
+
+/// Named, reusable sets of recipe IDs. Same swap pattern as the others.
+abstract class CollectionsRepository {
+  Future<List<Collection>> list();
+  Future<Collection?> get(String id);
+  Future<Collection> save(Collection collection);
   Future<void> delete(String id);
 }
 
