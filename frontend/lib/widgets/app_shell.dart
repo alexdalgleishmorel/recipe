@@ -85,10 +85,17 @@ class _AppShellState extends State<AppShell> {
         widget.collectionsRepo.list(),
       ]);
       if (!mounted) return;
+      final recipes = results[0] as List<Recipe>;
       setState(() {
-        _recipes = results[0] as List<Recipe>;
+        _recipes = recipes;
         _plans = results[1] as List<MealPlan>;
-        _collections = results[2] as List<Collection>;
+        // Pin the virtual "All Recipes" collection (every recipe, always
+        // current) ahead of the persisted ones. It is derived here, never
+        // stored — see [Collection.allRecipes].
+        _collections = [
+          Collection.allRecipes(recipes),
+          ...results[2] as List<Collection>,
+        ];
         _loading = false;
         _error = null;
       });

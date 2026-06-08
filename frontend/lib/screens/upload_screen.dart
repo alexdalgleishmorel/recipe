@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
@@ -90,42 +93,113 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Future<void> _onFiles(List<PickedFile> files) async {
     if (files.isEmpty) return;
+    // JSON imports parse entirely client-side — no AI pass — so they work for
+    // every account regardless of the `canAiImport` entitlement. Everything
+    // else (images / PDFs) needs the AI import service and is only reachable
+    // when the account is entitled.
+    final jsonFiles = <PickedFile>[];
+    final aiFiles = <PickedFile>[];
+    for (final f in files) {
+      if (contentTypeForFilename(f.filename) == 'application/json') {
+        jsonFiles.add(f);
+      } else {
+        aiFiles.add(f);
+      }
+    }
+
     setState(() {
       _parsingCount = files.length;
       _stage = _UploadStage.parsing;
     });
-    try {
-      final results = await widget.importService.parseAll([
-        for (final f in files)
-          RecipeImportFile(
-            bytes: f.bytes,
-            filename: f.filename,
-            contentType: contentTypeForFilename(f.filename),
-          ),
-      ]);
-      if (!mounted) return;
-      setState(() {
-        _stage = _UploadStage.review;
-        _entries = [
-          for (final r in results)
-            _ReviewEntry(
-              filename: r.filename,
-              draft: r.draft,
-              error: r.error,
-              tier: r.tier,
+
+    final results = <RecipeImportResult>[];
+    for (final f in jsonFiles) {
+      results.addAll(_parseJsonFile(f.bytes, f.filename));
+    }
+    if (aiFiles.isNotEmpty) {
+      try {
+        results.addAll(await widget.importService.parseAll([
+          for (final f in aiFiles)
+            RecipeImportFile(
+              bytes: f.bytes,
+              filename: f.filename,
+              contentType: contentTypeForFilename(f.filename),
             ),
-        ];
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _stage = _UploadStage.empty;
-        _entries = [];
-      });
-      final message = e is RecipeImportException
-          ? e.message
-          : 'Could not parse those files';
-      showToast(context, message);
+        ]));
+      } catch (e) {
+        // Surface the failure per-file so any JSON successes still show.
+        final message = e is RecipeImportException
+            ? e.message
+            : 'Could not parse those files';
+        for (final f in aiFiles) {
+          results.add(RecipeImportResult(filename: f.filename, error: message));
+        }
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _stage = results.isEmpty ? _UploadStage.empty : _UploadStage.review;
+      _entries = [
+        for (final r in results)
+          _ReviewEntry(
+            filename: r.filename,
+            draft: r.draft,
+            error: r.error,
+            tier: r.tier,
+          ),
+      ];
+    });
+  }
+
+  /// Parse a picked `.json` file client-side into one [RecipeImportResult] per
+  /// recipe object (a top-level array imports many at once). Unparseable or
+  /// off-schema files yield a failed result rather than throwing.
+  List<RecipeImportResult> _parseJsonFile(Uint8List bytes, String filename) {
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(utf8.decode(bytes));
+    } catch (_) {
+      return [
+        RecipeImportResult(
+          filename: filename,
+          error: 'Not valid JSON — check the file and try again.',
+        ),
+      ];
+    }
+    final objects = decoded is List ? decoded : [decoded];
+    if (objects.isEmpty) {
+      return [
+        RecipeImportResult(filename: filename, error: 'No recipes in this file.'),
+      ];
+    }
+    return [for (final obj in objects) _jsonObjectToResult(obj, filename)];
+  }
+
+  RecipeImportResult _jsonObjectToResult(dynamic obj, String filename) {
+    if (obj is! Map<String, dynamic>) {
+      return RecipeImportResult(
+        filename: filename,
+        error: 'Each recipe must be a JSON object — see the expected shape.',
+      );
+    }
+    final title = (obj['title'] ?? '').toString().trim();
+    if (title.isEmpty) {
+      return RecipeImportResult(
+        filename: filename,
+        error: 'Missing a "title" — see the expected shape.',
+      );
+    }
+    try {
+      // Stamp the staging id the review screen expects and drop any caller
+      // `id` / `image` (the schema docs say not to include them).
+      final draft = Recipe.fromJson({...obj, 'id': 'staging', 'image': ''});
+      return RecipeImportResult(filename: filename, tier: 'json', draft: draft);
+    } catch (_) {
+      return RecipeImportResult(
+        filename: filename,
+        error: 'Off-schema JSON — see the expected shape.',
+      );
     }
   }
 
@@ -201,7 +275,7 @@ class _UploadScreenState extends State<UploadScreen> {
             title: 'Upload',
             subtitle: widget.user.canAiImport
                 ? 'Drop one or many files to import, or write one from scratch'
-                : 'Write a recipe from scratch',
+                : 'Upload a JSON file, or write one from scratch',
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
@@ -260,25 +334,25 @@ class _UploadScreenState extends State<UploadScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const _JsonHelper(),
+        const SizedBox(height: 16),
         _stateBlock(
           title: 'Add recipes',
-          desc: canAi ? 'no files selected' : 'manual entry',
+          desc: canAi ? 'no files selected' : 'JSON or manual',
           child: Column(children: [
-            if (canAi) ...[
-              Dropzone(onFiles: _onFiles),
-              const SizedBox(height: 20),
-              Row(children: [
-                Expanded(child: Container(height: 1, color: rt.hair)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Text('OR',
-                      style: RecipeTypography.mono(
-                          size: 10, color: rt.ink3, letterSpacing: 1.4)),
-                ),
-                Expanded(child: Container(height: 1, color: rt.hair)),
-              ]),
-              const SizedBox(height: 18),
-            ],
+            Dropzone(onFiles: _onFiles, jsonOnly: !canAi),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: Container(height: 1, color: rt.hair)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text('OR',
+                    style: RecipeTypography.mono(
+                        size: 10, color: rt.ink3, letterSpacing: 1.4)),
+              ),
+              Expanded(child: Container(height: 1, color: rt.hair)),
+            ]),
+            const SizedBox(height: 18),
             Center(
               child: Btn(
                 label: 'Start from scratch',
@@ -295,7 +369,8 @@ class _UploadScreenState extends State<UploadScreen> {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'AI import is admin-enabled — write your recipe by hand for now.',
+                      'Photo & PDF import is admin-enabled. You can still upload '
+                      'JSON files or write a recipe by hand.',
                       textAlign: TextAlign.center,
                       style: RecipeTypography.mono(
                           size: 11, color: rt.ink3, letterSpacing: 0.4),
@@ -306,10 +381,6 @@ class _UploadScreenState extends State<UploadScreen> {
             ],
           ]),
         ),
-        if (canAi) ...[
-          const SizedBox(height: 16),
-          const _JsonHelper(),
-        ],
       ],
     );
   }
@@ -705,8 +776,8 @@ class _JsonHelperState extends State<_JsonHelper> {
     final rt = context.rt;
     return Container(
       decoration: BoxDecoration(
-        color: rt.paper,
-        border: Border.all(color: rt.hair),
+        color: rt.accentSoft,
+        border: Border.all(color: rt.accent),
         borderRadius: RecipeRadius.cardBR,
       ),
       clipBehavior: Clip.antiAlias,
@@ -718,21 +789,21 @@ class _JsonHelperState extends State<_JsonHelper> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
               child: Row(children: [
-                Icon(Icons.data_object, size: 16, color: rt.ink3),
+                Icon(Icons.data_object, size: 16, color: rt.accentInk),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text('Uploading JSON?',
                       style: TextStyle(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           fontSize: 14.5,
-                          color: rt.ink)),
+                          color: rt.accentInk)),
                 ),
                 Text('expected shape',
                     style: RecipeTypography.mono(
-                        size: 11, color: rt.ink3, letterSpacing: 0.5)),
+                        size: 11, color: rt.accentInk, letterSpacing: 0.5)),
                 const SizedBox(width: 8),
                 Icon(_open ? Icons.expand_less : Icons.expand_more,
-                    size: 18, color: rt.ink3),
+                    size: 18, color: rt.accentInk),
               ]),
             ),
           ),
@@ -753,7 +824,7 @@ class _JsonHelperState extends State<_JsonHelper> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: rt.paper2,
+                      color: rt.paper,
                       border: Border.all(color: rt.hair2),
                       borderRadius: RecipeRadius.fieldBR,
                     ),

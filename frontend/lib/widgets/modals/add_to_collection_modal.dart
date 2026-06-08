@@ -21,6 +21,9 @@ Future<AddToCollectionResult?> openAddToCollectionModal(
   required Recipe recipe,
   required List<Collection> collections,
 }) async {
+  // The virtual "All Recipes" collection already contains every recipe and is
+  // never persisted, so it isn't a valid add target.
+  final targets = collections.where((c) => !c.isAllRecipes).toList();
   return showRecipeModal<AddToCollectionResult>(
     context: context,
     builder: (ctx) {
@@ -33,7 +36,7 @@ Future<AddToCollectionResult?> openAddToCollectionModal(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final c in collections)
+            for (final c in targets)
               _CollectionRow(
                 title: c.name,
                 subtitle: '${c.recipeIds.length} recipe${c.recipeIds.length == 1 ? '' : 's'}',
@@ -50,7 +53,7 @@ Future<AddToCollectionResult?> openAddToCollectionModal(
                   );
                 },
               ),
-            if (collections.isEmpty)
+            if (targets.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(

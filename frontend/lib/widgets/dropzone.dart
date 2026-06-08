@@ -13,11 +13,16 @@ class PickedFile {
 }
 
 class Dropzone extends StatefulWidget {
-  const Dropzone({super.key, required this.onFiles});
+  const Dropzone({super.key, required this.onFiles, this.jsonOnly = false});
 
   /// Called with one or more picked files. The screen parses them together via
   /// `RecipeImportService.parseAll`.
   final ValueChanged<List<PickedFile>> onFiles;
+
+  /// When true, only `.json` files can be picked. Used for accounts without the
+  /// AI-import entitlement: JSON import needs no AI pass, so it's open to all,
+  /// while image/PDF import stays gated.
+  final bool jsonOnly;
 
   @override
   State<Dropzone> createState() => _DropzoneState();
@@ -29,15 +34,17 @@ class _DropzoneState extends State<Dropzone> {
   Future<void> _pick() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: const [
-        'json',
-        'jpg',
-        'jpeg',
-        'png',
-        'webp',
-        'gif',
-        'pdf',
-      ],
+      allowedExtensions: widget.jsonOnly
+          ? const ['json']
+          : const [
+              'json',
+              'jpg',
+              'jpeg',
+              'png',
+              'webp',
+              'gif',
+              'pdf',
+            ],
       allowMultiple: true,
       withData: true,
     );
@@ -78,14 +85,17 @@ class _DropzoneState extends State<Dropzone> {
               Icon(Icons.cloud_upload_outlined, size: 48, color: rt.ink3),
               const SizedBox(height: 16),
               Text(
-                'Drop recipe files here',
+                widget.jsonOnly ? 'Drop JSON recipe files here' : 'Drop recipe files here',
                 style: RecipeTypography.serif(size: 22, weight: FontWeight.w500, color: rt.ink, letterSpacing: -0.22),
               ),
               const SizedBox(height: 6),
-              Text('or click to browse — pick one or many',
+              Text(
+                  widget.jsonOnly
+                      ? 'or click to browse — JSON only'
+                      : 'or click to browse — pick one or many',
                   style: TextStyle(color: rt.ink3, fontSize: 14)),
               const SizedBox(height: 14),
-              Text('JSON · JPG · PNG · WEBP · GIF · PDF',
+              Text(widget.jsonOnly ? 'JSON' : 'JSON · JPG · PNG · WEBP · GIF · PDF',
                   style: RecipeTypography.mono(size: 11, color: rt.ink3, letterSpacing: 0.66)),
             ],
           ),

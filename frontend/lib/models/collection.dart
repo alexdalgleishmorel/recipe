@@ -1,3 +1,5 @@
+import 'recipe.dart';
+
 class Collection {
   Collection({
     required this.id,
@@ -10,6 +12,23 @@ class Collection {
   final String name;
   final String description;
   final List<String> recipeIds;
+
+  /// Well-known id of the virtual, always-present "All Recipes" collection.
+  /// Every user has it. It is derived from the full library at load time (see
+  /// [Collection.allRecipes]) and never persisted, so it can't be renamed,
+  /// deleted, shared, or have recipes added/removed by hand — a recipe is
+  /// always in it by virtue of existing.
+  static const String allRecipesId = 'all';
+
+  bool get isAllRecipes => id == allRecipesId;
+
+  /// The virtual "All Recipes" collection: every recipe in [recipes], in order.
+  factory Collection.allRecipes(List<Recipe> recipes) => Collection(
+        id: allRecipesId,
+        name: 'All Recipes',
+        description: 'Every recipe in your library.',
+        recipeIds: [for (final r in recipes) r.id],
+      );
 
   Collection copyWith({
     String? id,
