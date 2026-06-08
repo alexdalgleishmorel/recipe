@@ -8,12 +8,12 @@ import 'admin_users_screen.dart';
 
 /// Account settings page. Surfaces the signed-in account's name/email plus the
 /// app-level controls that used to live in the side nav: the dark-mode toggle,
-/// the admin-only AI-import entitlement toggle (#6), and sign-out.
+/// the admin-only "Manage users" entry (#66), and sign-out.
 ///
-/// The AI-import toggle calls an async callback that flips `canAiImport` on the
-/// current account (via AppShell, which rebuilds the whole tree with the
-/// updated `User`). This screen keeps a local copy of `user` so it can reflect
-/// the new entitlement immediately after the callback resolves.
+/// AI-import entitlements are managed entirely from "Manage users" (including
+/// the admin's own account), so this screen no longer carries a standalone
+/// toggle (#70). The `onSetCanAiImport` callback is retained for the
+/// AppShell/AuthGate contract but is unused here.
 class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({
     super.key,
@@ -30,7 +30,8 @@ class AccountSettingsScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
 
-  /// Admin-only toggle of the current account's `canAiImport` entitlement (#6).
+  /// Retained for the AppShell/AuthGate contract. AI-import entitlements are now
+  /// managed via "Manage users" (#70), so this is no longer surfaced here.
   final Future<void> Function(bool) onSetCanAiImport;
 
   /// Backs the admin-only "Manage users" entry (#66), which lists all accounts
@@ -43,25 +44,12 @@ class AccountSettingsScreen extends StatefulWidget {
 
 class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   late User _user = widget.user;
-  bool _busyAi = false;
 
   @override
   void didUpdateWidget(AccountSettingsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.user != oldWidget.user) {
       _user = widget.user;
-    }
-  }
-
-  Future<void> _toggleAi(bool value) async {
-    if (_busyAi) return;
-    setState(() => _busyAi = true);
-    try {
-      await widget.onSetCanAiImport(value);
-      if (!mounted) return;
-      setState(() => _user = _user.copyWith(canAiImport: value));
-    } finally {
-      if (mounted) setState(() => _busyAi = false);
     }
   }
 
@@ -102,17 +90,6 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                 subtitle: widget.isDark ? 'On' : 'Off',
                 control: _Toggle(value: widget.isDark, onChanged: (_) => widget.onToggleTheme()),
               ),
-              if (_user.isAdmin) ...[
-                Divider(height: 25, color: rt.hair),
-                _SettingRow(
-                  title: 'AI import',
-                  subtitle: 'Admin entitlement for AI-assisted recipe import',
-                  control: _Toggle(
-                    value: _user.canAiImport,
-                    onChanged: _busyAi ? null : _toggleAi,
-                  ),
-                ),
-              ],
             ],
           ),
           if (_user.isAdmin) ...[

@@ -33,6 +33,9 @@ dependencies:
   # Markdown rendering for AI chat replies.
   flutter_markdown: ^0.7.0
 
+  # SVG rendering for the brand wordmark banners + icon.
+  flutter_svg: ^2.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,3 +47,4 @@ flutter:
 
   assets:
     - assets/seed/
+    - assets/brand/

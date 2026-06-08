@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/user.dart';
 import '../services/repositories.dart';
@@ -45,6 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final rt = context.rt;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final banner =
+        isDark ? 'assets/brand/banner-dark.svg' : 'assets/brand/banner-light.svg';
     return Scaffold(
       backgroundColor: rt.paper,
       body: Center(
@@ -56,18 +60,14 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Recipes',
-                  textAlign: TextAlign.center,
-                  style: RecipeTypography.serif(
-                    size: 48,
-                    weight: FontWeight.w500,
-                    color: rt.ink,
-                    letterSpacing: -0.96,
-                    height: 1.05,
+                Center(
+                  child: SvgPicture.asset(
+                    banner,
+                    width: 220,
+                    semanticsLabel: 'Recipes',
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
                   'Your recipe library, meal planner, and grocery list — '
                   'all in one place.',
