@@ -30,6 +30,7 @@ class AppShell extends StatefulWidget {
     required this.sharingRepo,
     required this.importService,
     required this.adminRepo,
+    required this.uploadsRepo,
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
@@ -45,6 +46,7 @@ class AppShell extends StatefulWidget {
   final SharingRepository sharingRepo;
   final RecipeImportService importService;
   final AdminRepository adminRepo;
+  final UploadsRepository uploadsRepo;
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
@@ -136,6 +138,7 @@ class _AppShellState extends State<AppShell> {
         collectionsRepo: widget.collectionsRepo,
         collections: _collections,
         sharingRepo: widget.sharingRepo,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: _refresh,
       );
     }
@@ -144,6 +147,7 @@ class _AppShellState extends State<AppShell> {
         user: widget.user,
         recipesRepo: widget.recipesRepo,
         importService: widget.importService,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: _refresh,
       );
     }
@@ -156,6 +160,7 @@ class _AppShellState extends State<AppShell> {
         recipesRepo: widget.recipesRepo,
         plansRepo: widget.plansRepo,
         sharingRepo: widget.sharingRepo,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: _refresh,
       );
     }
@@ -165,6 +170,7 @@ class _AppShellState extends State<AppShell> {
         recipes: _recipes,
         plansRepo: widget.plansRepo,
         recipesRepo: widget.recipesRepo,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: _refresh,
       );
     }

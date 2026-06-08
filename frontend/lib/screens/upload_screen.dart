@@ -12,6 +12,7 @@ import '../widgets/dropzone.dart';
 import '../widgets/ingredient_editor.dart';
 import '../widgets/instruction_editor.dart';
 import '../widgets/page_head.dart';
+import '../widgets/photo_field.dart';
 import '../widgets/toast.dart';
 
 /// The repo-relative docs page describing the JSON import schema.
@@ -69,12 +70,14 @@ class UploadScreen extends StatefulWidget {
     required this.recipesRepo,
     required this.importService,
     required this.onChanged,
+    this.uploadsRepo,
   });
 
   final User user;
   final RecipesRepository recipesRepo;
   final RecipeImportService importService;
   final Future<void> Function() onChanged;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<UploadScreen> createState() => _UploadScreenState();
@@ -374,6 +377,7 @@ class _UploadScreenState extends State<UploadScreen> {
               key: ValueKey(_entries[i].key),
               entry: _entries[i],
               single: total == 1,
+              uploadsRepo: widget.uploadsRepo,
               onChange: (r) => setState(() => _entries[i].draft = r),
               onSave: () => _saveEntry(_entries[i]),
               onRemove: () => _removeEntry(_entries[i]),
@@ -406,6 +410,7 @@ class _ReviewCard extends StatefulWidget {
     required this.onChange,
     required this.onSave,
     required this.onRemove,
+    this.uploadsRepo,
   });
 
   final _ReviewEntry entry;
@@ -413,6 +418,7 @@ class _ReviewCard extends StatefulWidget {
   final ValueChanged<Recipe> onChange;
   final VoidCallback onSave;
   final VoidCallback onRemove;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<_ReviewCard> createState() => _ReviewCardState();
@@ -526,6 +532,7 @@ class _ReviewCardState extends State<_ReviewCard> {
               child: _ReviewForm(
                 draft: entry.draft!,
                 saved: entry.saved,
+                uploadsRepo: widget.uploadsRepo,
                 onChange: widget.onChange,
                 onSave: widget.onSave,
                 onRemove: widget.onRemove,
@@ -544,12 +551,14 @@ class _ReviewForm extends StatelessWidget {
     required this.onChange,
     required this.onSave,
     required this.onRemove,
+    this.uploadsRepo,
   });
   final Recipe draft;
   final bool saved;
   final ValueChanged<Recipe> onChange;
   final VoidCallback onSave;
   final VoidCallback onRemove;
+  final UploadsRepository? uploadsRepo;
 
   @override
   Widget build(BuildContext context) {
@@ -576,7 +585,16 @@ class _ReviewForm extends StatelessWidget {
               style: RecipeTypography.mono(
                   size: 11, color: rt.ink3, letterSpacing: 0.66)),
         );
+    final uploadsRepo = this.uploadsRepo;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (uploadsRepo != null) ...[
+        label('Photo'),
+        PhotoField(
+          url: draft.image,
+          uploadsRepo: uploadsRepo,
+          onChanged: (url) => onChange(draft.copyWith(image: url)),
+        ),
+      ],
       label('Title'),
       TextFormField(
         initialValue: draft.title,

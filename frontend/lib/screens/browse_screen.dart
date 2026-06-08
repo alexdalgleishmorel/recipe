@@ -23,6 +23,7 @@ class BrowseScreen extends StatefulWidget {
     required this.collections,
     required this.sharingRepo,
     required this.onChanged,
+    this.uploadsRepo,
   });
 
   final List<Recipe> recipes;
@@ -33,6 +34,7 @@ class BrowseScreen extends StatefulWidget {
   final CollectionsRepository collectionsRepo;
   final SharingRepository sharingRepo;
   final Future<void> Function() onChanged;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<BrowseScreen> createState() => _BrowseScreenState();
@@ -111,6 +113,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                         collectionsRepo: widget.collectionsRepo,
                         collections: widget.collections,
                         sharingRepo: widget.sharingRepo,
+                        uploadsRepo: widget.uploadsRepo,
                         onChanged: widget.onChanged,
                       ),
                     )),

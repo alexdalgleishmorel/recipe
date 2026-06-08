@@ -24,12 +24,14 @@ class PlanDetailScreen extends StatefulWidget {
     required this.plansRepo,
     required this.recipesRepo,
     required this.onChanged,
+    this.uploadsRepo,
   });
 
   final String planId;
   final MealPlansRepository plansRepo;
   final RecipesRepository recipesRepo;
   final Future<void> Function() onChanged;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<PlanDetailScreen> createState() => _PlanDetailScreenState();
@@ -368,6 +370,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             recipesRepo: widget.recipesRepo,
             plansRepo: widget.plansRepo,
             plans: const [],
+            uploadsRepo: widget.uploadsRepo,
             onChanged: widget.onChanged,
           ),
         )),
@@ -389,6 +392,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             recipesRepo: widget.recipesRepo,
             plansRepo: widget.plansRepo,
             plans: const [],
+            uploadsRepo: widget.uploadsRepo,
             onChanged: widget.onChanged,
           ),
         )),

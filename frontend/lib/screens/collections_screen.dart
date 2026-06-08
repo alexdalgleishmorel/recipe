@@ -22,6 +22,7 @@ class CollectionsScreen extends StatefulWidget {
     required this.plansRepo,
     required this.sharingRepo,
     required this.onChanged,
+    this.uploadsRepo,
   });
 
   final List<Collection> collections;
@@ -32,6 +33,7 @@ class CollectionsScreen extends StatefulWidget {
   final MealPlansRepository plansRepo;
   final SharingRepository sharingRepo;
   final Future<void> Function() onChanged;
+  final UploadsRepository? uploadsRepo;
 
   @override
   State<CollectionsScreen> createState() => _CollectionsScreenState();
@@ -62,6 +64,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
         recipes: widget.recipes,
         plans: widget.plans,
         sharingRepo: widget.sharingRepo,
+        uploadsRepo: widget.uploadsRepo,
         onChanged: widget.onChanged,
       ),
     ));
