@@ -5,6 +5,7 @@ import 'services/http_api_client.dart';
 import 'services/http_collections_repository.dart';
 import 'services/http_meal_plans_repository.dart';
 import 'services/http_recipes_repository.dart';
+import 'services/http_sharing_repository.dart';
 import 'services/local_auth_repository.dart';
 import 'services/local_collections_repository.dart';
 import 'services/local_meal_plans_repository.dart';
@@ -67,11 +68,8 @@ _Repos _buildRepos() {
     );
     final recipes = HttpRecipesRepository(api);
     final collections = HttpCollectionsRepository(api);
-    // SharingRepository stays a local stub until #24 ships cross-user delivery.
-    final sharing = LocalSharingRepository(
-      recipesRepo: recipes,
-      collectionsRepo: collections,
-    );
+    // Real cross-user delivery + server-side fork (#24).
+    final sharing = HttpSharingRepository(api);
     return _Repos(
       recipes: recipes,
       plans: HttpMealPlansRepository(api),
