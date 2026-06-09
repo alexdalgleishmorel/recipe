@@ -10,7 +10,7 @@ import '../screens/collections_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/shared_with_me_screen.dart';
 import '../screens/upload_screen.dart';
-import '../services/repositories.dart';
+import '../services/app_repositories.dart';
 import '../theme/app_theme.dart';
 import 'bottom_tabs.dart';
 import 'side_nav.dart';
@@ -24,28 +24,19 @@ class AppShell extends StatefulWidget {
   const AppShell({
     super.key,
     required this.user,
-    required this.recipesRepo,
-    required this.plansRepo,
-    required this.collectionsRepo,
-    required this.sharingRepo,
-    required this.importService,
-    required this.adminRepo,
-    required this.uploadsRepo,
+    required this.repos,
     required this.isDark,
     required this.onToggleTheme,
     required this.onSignOut,
   });
 
-  /// The signed-in user. Later issues read `user.isAdmin` (#5 sharing) and
-  /// `user.canAiImport` (#6 gated import) to gate UI.
+  /// The signed-in user. Issues read `user.isAdmin` (#5 sharing),
+  /// `user.canAiImport` (#6 gated import), and `user.isDemo` (read-only demo
+  /// banner) to gate UI.
   final User user;
-  final RecipesRepository recipesRepo;
-  final MealPlansRepository plansRepo;
-  final CollectionsRepository collectionsRepo;
-  final SharingRepository sharingRepo;
-  final RecipeImportService importService;
-  final AdminRepository adminRepo;
-  final UploadsRepository uploadsRepo;
+
+  /// The active repository bundle (authenticated or demo).
+  final AppRepositories repos;
   final bool isDark;
   final VoidCallback onToggleTheme;
   final Future<void> Function() onSignOut;
@@ -80,9 +71,9 @@ class _AppShellState extends State<AppShell> {
   Future<void> _refresh() async {
     try {
       final results = await Future.wait([
-        widget.recipesRepo.list(),
-        widget.plansRepo.list(),
-        widget.collectionsRepo.list(),
+        widget.repos.recipes.list(),
+        widget.repos.plans.list(),
+        widget.repos.collections.list(),
       ]);
       if (!mounted) return;
       final recipes = results[0] as List<Recipe>;
@@ -115,7 +106,7 @@ class _AppShellState extends State<AppShell> {
         isDark: widget.isDark,
         onToggleTheme: widget.onToggleTheme,
         onSignOut: widget.onSignOut,
-        adminRepo: widget.adminRepo,
+        adminRepo: widget.repos.admin,
       ),
     ));
   }
@@ -133,22 +124,22 @@ class _AppShellState extends State<AppShell> {
     if (tab == 0) {
       return BrowseScreen(
         recipes: _recipes,
-        recipesRepo: widget.recipesRepo,
-        plansRepo: widget.plansRepo,
+        recipesRepo: widget.repos.recipes,
+        plansRepo: widget.repos.plans,
         plans: _plans,
-        collectionsRepo: widget.collectionsRepo,
+        collectionsRepo: widget.repos.collections,
         collections: _collections,
-        sharingRepo: widget.sharingRepo,
-        uploadsRepo: widget.uploadsRepo,
+        sharingRepo: widget.repos.sharing,
+        uploadsRepo: widget.repos.uploads,
         onChanged: _refresh,
       );
     }
     if (tab == 1) {
       return UploadScreen(
         user: widget.user,
-        recipesRepo: widget.recipesRepo,
-        importService: widget.importService,
-        uploadsRepo: widget.uploadsRepo,
+        recipesRepo: widget.repos.recipes,
+        importService: widget.repos.importService,
+        uploadsRepo: widget.repos.uploads,
         onChanged: _refresh,
       );
     }
@@ -157,11 +148,11 @@ class _AppShellState extends State<AppShell> {
         collections: _collections,
         recipes: _recipes,
         plans: _plans,
-        collectionsRepo: widget.collectionsRepo,
-        recipesRepo: widget.recipesRepo,
-        plansRepo: widget.plansRepo,
-        sharingRepo: widget.sharingRepo,
-        uploadsRepo: widget.uploadsRepo,
+        collectionsRepo: widget.repos.collections,
+        recipesRepo: widget.repos.recipes,
+        plansRepo: widget.repos.plans,
+        sharingRepo: widget.repos.sharing,
+        uploadsRepo: widget.repos.uploads,
         onChanged: _refresh,
       );
     }
@@ -169,15 +160,47 @@ class _AppShellState extends State<AppShell> {
       return PlansScreen(
         plans: _plans,
         recipes: _recipes,
-        plansRepo: widget.plansRepo,
-        recipesRepo: widget.recipesRepo,
-        uploadsRepo: widget.uploadsRepo,
+        plansRepo: widget.repos.plans,
+        recipesRepo: widget.repos.recipes,
+        uploadsRepo: widget.repos.uploads,
         onChanged: _refresh,
       );
     }
     return SharedWithMeScreen(
-      sharingRepo: widget.sharingRepo,
+      sharingRepo: widget.repos.sharing,
       onChanged: _refresh,
+    );
+  }
+
+  /// Persistent disclaimer shown across the top in the read-only demo session.
+  Widget _demoBanner(RecipeTheme rt) {
+    return Material(
+      color: rt.accentSoft,
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline, size: 15, color: rt.accentInk),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Demo account — explore freely, but changes won\'t be saved.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: rt.accentInk,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -245,15 +268,22 @@ class _AppShellState extends State<AppShell> {
         if (isDesktop) {
           return Scaffold(
             backgroundColor: rt.paper,
-            body: Row(
+            body: Column(
               children: [
-                SideNav(
-                  current: _tab,
-                  onNav: _onNav,
-                  user: widget.user,
-                  onOpenAccount: _openAccount,
+                if (widget.user.isDemo) _demoBanner(rt),
+                Expanded(
+                  child: Row(
+                    children: [
+                      SideNav(
+                        current: _tab,
+                        onNav: _onNav,
+                        user: widget.user,
+                        onOpenAccount: _openAccount,
+                      ),
+                      Expanded(child: content),
+                    ],
+                  ),
                 ),
-                Expanded(child: content),
               ],
             ),
           );
@@ -262,6 +292,7 @@ class _AppShellState extends State<AppShell> {
           backgroundColor: rt.paper,
           body: Column(
             children: [
+              if (widget.user.isDemo) _demoBanner(rt),
               Expanded(child: content),
               BottomTabsBar(
                 current: _tab,

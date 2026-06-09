@@ -188,6 +188,21 @@ class CognitoAuthRepository implements AuthRepository {
   Future<User?> _maybeCompleteRedirect(SharedPreferences prefs) async {
     final href = web.window.location.href;
     final current = Uri.parse(href);
+
+    // An OAuth/Cognito error comes back as `?error=...` (e.g. an unauthorized
+    // account or a denied consent). Surface it so the login failure path runs
+    // (with the demo offer) instead of silently returning to a blank login.
+    final error = current.queryParameters['error'];
+    if (error != null) {
+      final description = current.queryParameters['error_description'];
+      _stripQuery();
+      await prefs.remove(_kState);
+      await prefs.remove(_kVerifier);
+      throw Exception(
+        "Sign-in didn't complete${description != null ? ': $description' : ' ($error).'}",
+      );
+    }
+
     final code = current.queryParameters['code'];
     if (code == null) return null;
 

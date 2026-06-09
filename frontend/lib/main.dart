@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import 'services/app_repositories.dart';
 import 'services/cognito_auth_repository.dart';
+import 'services/demo_repositories.dart';
 import 'services/http_admin_repository.dart';
 import 'services/http_api_client.dart';
 import 'services/http_collections_repository.dart';
@@ -20,6 +24,7 @@ import 'services/local_sharing_repository.dart';
 import 'services/local_uploads_repository.dart';
 import 'services/repositories.dart';
 import 'theme/app_theme.dart';
+import 'utils/global_toast.dart';
 import 'widgets/auth_gate.dart';
 
 /// Compile-time switch between the local (mocked) stack and the live backend.
@@ -37,33 +42,8 @@ const String apiBaseUrl = String.fromEnvironment(
   defaultValue: 'https://yz0jib3efa.execute-api.us-east-1.amazonaws.com',
 );
 
-/// The fully-wired set of repositories for a given mode. Built once by
-/// [_buildRepos] so the widget tree below stays mode-agnostic.
-class _Repos {
-  _Repos({
-    required this.recipes,
-    required this.plans,
-    required this.collections,
-    required this.settings,
-    required this.auth,
-    required this.sharing,
-    required this.importService,
-    required this.admin,
-    required this.uploads,
-  });
-
-  final RecipesRepository recipes;
-  final MealPlansRepository plans;
-  final CollectionsRepository collections;
-  final SettingsRepository settings;
-  final AuthRepository auth;
-  final SharingRepository sharing;
-  final RecipeImportService importService;
-  final AdminRepository admin;
-  final UploadsRepository uploads;
-}
-
-_Repos _buildRepos() {
+/// Build the real (authenticated) repository set for the current mode.
+AppRepositories _buildRealRepositories() {
   // Settings stay local in both modes.
   final SettingsRepository settings = LocalSettingsRepository();
 
@@ -79,7 +59,7 @@ _Repos _buildRepos() {
     final sharing = HttpSharingRepository(api);
     // Real Anthropic-backed AI import (#19/#25).
     final importService = HttpRecipeImportService(api);
-    return _Repos(
+    return AppRepositories(
       recipes: recipes,
       plans: HttpMealPlansRepository(api),
       collections: collections,
@@ -97,7 +77,7 @@ _Repos _buildRepos() {
 
   final recipes = LocalRecipesRepository();
   final collections = LocalCollectionsRepository();
-  return _Repos(
+  return AppRepositories(
     recipes: recipes,
     plans: LocalMealPlansRepository(),
     collections: collections,
@@ -114,43 +94,39 @@ _Repos _buildRepos() {
 }
 
 void main() {
-  final repos = _buildRepos();
-  runApp(RecipesApp(
-    recipesRepo: repos.recipes,
-    plansRepo: repos.plans,
-    collectionsRepo: repos.collections,
-    settingsRepo: repos.settings,
-    authRepo: repos.auth,
-    sharingRepo: repos.sharing,
-    importService: repos.importService,
-    adminRepo: repos.admin,
-    uploadsRepo: repos.uploads,
-  ));
+  // The read-only demo blocks writes by throwing [DemoWriteBlockedException]
+  // (after toasting). Run the app inside a guarded zone — and initialise the
+  // binding inside it via runApp — so async errors from button handlers land
+  // here. Swallow the demo block (the toast already explained it) so a blocked
+  // write quietly aborts the handler; re-report everything else.
+  runZonedGuarded(() {
+    final defaultFlutterOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.exception is DemoWriteBlockedException) return;
+      defaultFlutterOnError?.call(details);
+    };
+
+    final real = _buildRealRepositories();
+    final demo = buildDemoRepositories();
+    runApp(RecipesApp(realRepos: real, demoRepos: demo));
+  }, (error, stack) {
+    if (error is DemoWriteBlockedException) return;
+    FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack));
+  });
 }
 
 class RecipesApp extends StatefulWidget {
   const RecipesApp({
     super.key,
-    required this.recipesRepo,
-    required this.plansRepo,
-    required this.collectionsRepo,
-    required this.settingsRepo,
-    required this.authRepo,
-    required this.sharingRepo,
-    required this.importService,
-    required this.adminRepo,
-    required this.uploadsRepo,
+    required this.realRepos,
+    required this.demoRepos,
   });
 
-  final RecipesRepository recipesRepo;
-  final MealPlansRepository plansRepo;
-  final CollectionsRepository collectionsRepo;
-  final SettingsRepository settingsRepo;
-  final AuthRepository authRepo;
-  final SharingRepository sharingRepo;
-  final RecipeImportService importService;
-  final AdminRepository adminRepo;
-  final UploadsRepository uploadsRepo;
+  /// The authenticated repository set (local or backend, per [useBackend]).
+  final AppRepositories realRepos;
+
+  /// The read-only, seeded repository set used by the demo session.
+  final AppRepositories demoRepos;
 
   @override
   State<RecipesApp> createState() => _RecipesAppState();
@@ -166,14 +142,14 @@ class _RecipesAppState extends State<RecipesApp> {
   }
 
   Future<void> _loadTheme() async {
-    final isDark = await widget.settingsRepo.isDark();
+    final isDark = await widget.realRepos.settings.isDark();
     if (!mounted) return;
     setState(() => _dark = isDark);
   }
 
   Future<void> _toggleTheme() async {
     setState(() => _dark = !_dark);
-    await widget.settingsRepo.setDark(_dark);
+    await widget.realRepos.settings.setDark(_dark);
   }
 
   @override
@@ -181,18 +157,13 @@ class _RecipesAppState extends State<RecipesApp> {
     return MaterialApp(
       title: 'Recipes',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: globalMessengerKey,
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
       home: AuthGate(
-        authRepo: widget.authRepo,
-        recipesRepo: widget.recipesRepo,
-        plansRepo: widget.plansRepo,
-        collectionsRepo: widget.collectionsRepo,
-        sharingRepo: widget.sharingRepo,
-        importService: widget.importService,
-        adminRepo: widget.adminRepo,
-        uploadsRepo: widget.uploadsRepo,
+        realRepos: widget.realRepos,
+        demoRepos: widget.demoRepos,
         isDark: _dark,
         onToggleTheme: _toggleTheme,
       ),
