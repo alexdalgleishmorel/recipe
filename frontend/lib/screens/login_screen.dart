@@ -12,10 +12,15 @@ class LoginScreen extends StatefulWidget {
     super.key,
     required this.authRepo,
     required this.onSignedIn,
+    required this.onEnterDemo,
   });
 
   final AuthRepository authRepo;
   final ValueChanged<User> onSignedIn;
+
+  /// Enter the read-only demo session (seeded data, writes disabled). Offered
+  /// under the Google button and emphasised in the sign-in failure path.
+  final VoidCallback onEnterDemo;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -74,6 +79,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   enabled: !_busy,
                   onTap: () => _signIn(widget.authRepo.signInWithGoogle),
                 ),
+                const SizedBox(height: 12),
+                _SignInButton(
+                  icon: Icons.play_circle_outline,
+                  label: 'Explore the demo',
+                  enabled: !_busy,
+                  onTap: widget.onEnterDemo,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Full access is limited to approved accounts. '
+                  'The demo is read-only and pre-filled with sample data.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11.5, color: rt.ink3, height: 1.4),
+                ),
                 if (_busy) ...[
                   const SizedBox(height: 24),
                   Center(
@@ -93,6 +112,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     _error!,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: rt.danger),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "Not on the approved list? Explore the demo instead.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: rt.ink3),
                   ),
                 ],
               ],

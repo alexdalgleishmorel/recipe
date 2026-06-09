@@ -2,35 +2,29 @@ import 'package:flutter/material.dart';
 
 import '../models/user.dart';
 import '../screens/login_screen.dart';
-import '../services/repositories.dart';
+import '../services/app_repositories.dart';
+import '../services/demo_repositories.dart';
 import '../theme/app_theme.dart';
 import 'app_shell.dart';
 
 /// Root gate. Resolves the current user on boot and shows `LoginScreen` when
 /// signed out, `AppShell` once signed in. Sign-out from the shell returns here.
+///
+/// Also owns the read-only **demo session**: choosing the demo (from the login
+/// screen, including the sign-in failure path) swaps to the seeded
+/// [AppRepositories.demoRepos] and a synthetic [demoUser] without touching
+/// auth — so it works even in the backend build.
 class AuthGate extends StatefulWidget {
   const AuthGate({
     super.key,
-    required this.authRepo,
-    required this.recipesRepo,
-    required this.plansRepo,
-    required this.collectionsRepo,
-    required this.sharingRepo,
-    required this.importService,
-    required this.adminRepo,
-    required this.uploadsRepo,
+    required this.realRepos,
+    required this.demoRepos,
     required this.isDark,
     required this.onToggleTheme,
   });
 
-  final AuthRepository authRepo;
-  final RecipesRepository recipesRepo;
-  final MealPlansRepository plansRepo;
-  final CollectionsRepository collectionsRepo;
-  final SharingRepository sharingRepo;
-  final RecipeImportService importService;
-  final AdminRepository adminRepo;
-  final UploadsRepository uploadsRepo;
+  final AppRepositories realRepos;
+  final AppRepositories demoRepos;
   final bool isDark;
   final VoidCallback onToggleTheme;
 
@@ -40,6 +34,7 @@ class AuthGate extends StatefulWidget {
 
 class _AuthGateState extends State<AuthGate> {
   User? _user;
+  bool _demo = false;
   bool _loading = true;
   Object? _error;
 
@@ -55,7 +50,7 @@ class _AuthGateState extends State<AuthGate> {
       _error = null;
     });
     try {
-      final user = await widget.authRepo.currentUser();
+      final user = await widget.realRepos.auth.currentUser();
       if (!mounted) return;
       setState(() {
         _user = user;
@@ -74,8 +69,18 @@ class _AuthGateState extends State<AuthGate> {
 
   void _onSignedIn(User user) => setState(() => _user = user);
 
+  void _enterDemo() => setState(() => _demo = true);
+
   Future<void> _signOut() async {
-    await widget.authRepo.signOut();
+    // A demo session has no real auth state — just drop back to the gate.
+    if (_demo) {
+      setState(() {
+        _demo = false;
+        _user = null;
+      });
+      return;
+    }
+    await widget.realRepos.auth.signOut();
     if (!mounted) return;
     setState(() => _user = null);
   }
@@ -93,6 +98,17 @@ class _AuthGateState extends State<AuthGate> {
             child: CircularProgressIndicator(strokeWidth: 2, color: rt.accent),
           ),
         ),
+      );
+    }
+
+    // A chosen demo session takes precedence over (the absence of) a real user.
+    if (_demo) {
+      return AppShell(
+        user: demoUser,
+        repos: widget.demoRepos,
+        isDark: widget.isDark,
+        onToggleTheme: widget.onToggleTheme,
+        onSignOut: _signOut,
       );
     }
 
@@ -126,6 +142,11 @@ class _AuthGateState extends State<AuthGate> {
                     onPressed: _resolve,
                     child: const Text('Try again'),
                   ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: _enterDemo,
+                    child: const Text('Explore the demo instead'),
+                  ),
                 ],
               ),
             ),
@@ -137,20 +158,15 @@ class _AuthGateState extends State<AuthGate> {
     final user = _user;
     if (user == null) {
       return LoginScreen(
-        authRepo: widget.authRepo,
+        authRepo: widget.realRepos.auth,
         onSignedIn: _onSignedIn,
+        onEnterDemo: _enterDemo,
       );
     }
 
     return AppShell(
       user: user,
-      recipesRepo: widget.recipesRepo,
-      plansRepo: widget.plansRepo,
-      collectionsRepo: widget.collectionsRepo,
-      sharingRepo: widget.sharingRepo,
-      importService: widget.importService,
-      adminRepo: widget.adminRepo,
-      uploadsRepo: widget.uploadsRepo,
+      repos: widget.realRepos,
       isDark: widget.isDark,
       onToggleTheme: widget.onToggleTheme,
       onSignOut: _signOut,
